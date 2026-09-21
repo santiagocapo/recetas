@@ -4,7 +4,7 @@ service cloud.firestore {
     // Solo estas dos cuentas pueden leer y escribir. Correos en minúsculas.
     function esDeCasa() {
       return request.auth != null &&
-        request.auth.token.email.lower() in ['tu-correo@gmail.com', 'correo-de-olimpia@gmail.com'];
+        request.auth.token.email.lower() in ['santiagocapo@gmail.com', 'olimpiamadridtaverner@gmail.com'];
     }
 
     // --- Lista de la compra ---
