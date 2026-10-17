@@ -101,6 +101,12 @@ header.cab h1{font:800 clamp(1.375rem,7vw,2.125rem)/1.1 var(--titulo);letter-spa
 .ficha h1{font:800 clamp(1.75rem,7vw,2.5rem)/1.1 var(--titulo);letter-spacing:-.02em;margin:0 0 var(--e1)}
 .datos{display:flex;flex-wrap:wrap;gap:var(--e05) var(--e2);color:var(--suave);font-size:.875rem;line-height:1.6}
 .datos b{color:var(--tinta);font-weight:600}
+.enmenu{display:flex;flex-wrap:wrap;align-items:center;gap:var(--e05) var(--e1);margin:0 0 var(--e1);color:var(--romero);font-size:.875rem;line-height:1.6}
+.enmenu > svg{width:1.125rem;height:1.125rem;flex:none}
+.dia-menu{display:inline-flex;align-items:center;gap:.125rem;background:var(--romero-t);color:var(--tinta);border-radius:999px;padding:.125rem .125rem .125rem .625rem;white-space:nowrap}
+.dia-menu button{border:0;background:transparent;color:var(--suave);width:var(--toque);height:var(--toque);border-radius:50%;display:grid;place-items:center}
+.dia-menu button svg{width:.875rem}
+.tarjeta .chapa{position:absolute;left:var(--e1);bottom:var(--e1);background:var(--romero);color:var(--bg);border-radius:999px;padding:.125rem .5rem;font-size:.75rem;font-weight:600;line-height:1.5}
 .etqs{display:flex;flex-wrap:wrap;gap:var(--e1);margin-top:var(--e1)}
 .etqs span{font-size:.8125rem;background:var(--romero-t);color:var(--tinta);border-radius:999px;padding:.25rem .75rem}
 .acciones{display:flex;gap:var(--e1);overflow-x:auto;padding:var(--e2);scrollbar-width:none}
@@ -390,17 +396,18 @@ label.campo{display:flex;flex-direction:column;gap:var(--e05);font-size:.875rem;
   <h2 id="hcu-nombre"></h2>
   <p class="ayuda" id="hcu-correo"></p>
   <p class="ayuda" id="hcu-total"></p>
-  <div class="pie"><button class="btn" id="hcu-exportar">Exportar copia (JSON)</button><button class="btn peligro" id="hcu-salir">Cerrar sesión</button><button class="btn" data-cerrar>Cerrar</button></div>
+  <div class="pie"><a class="btn" href="importar.html">Importar desde Crouton</a><button class="btn" id="hcu-exportar">Exportar copia (JSON)</button><button class="btn peligro" id="hcu-salir">Cerrar sesión</button><button class="btn" data-cerrar>Cerrar</button></div>
 </div></dialog>
 
 <div id="toast" hidden role="status"><span></span><button hidden></button></div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult,
-  signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+  signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, onSnapshot,
-  addDoc, setDoc, updateDoc, deleteDoc, getDoc, getDocs, deleteField, serverTimestamp, arrayUnion, increment } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+  addDoc, setDoc, updateDoc, deleteDoc, getDoc, getDocs, deleteField, query, where, documentId,
+  serverTimestamp, arrayUnion, arrayRemove, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* NUCLEO-INICIO: funciones puras (sin Firebase ni DOM), probadas aparte */
 const norm = s => String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
@@ -651,7 +658,13 @@ function toast(msg, accion, etiqueta = "Deshacer") {
   t.hidden = false; clearTimeout(toastT);
   toastT = setTimeout(() => { t.hidden = true; }, accion ? 6000 : 3500);
 }
-const fallo = e => toast(e?.code === "permission-denied" ? "Sin permiso. Revisa las reglas de Firestore (colecciones recetas, fotos y miniaturas)." : "Error: " + (e?.message || e));
+function fallo(e, donde) {
+  if (e?.code !== "permission-denied") return toast("Error: " + (e?.message || e));
+  toast(donde
+    ? `Firestore no deja usar «${donde}» con la cuenta ${me}. Revisa las reglas: los correos de esDeCasa() y el bloque de «${donde}».`
+    : `Sin permiso con la cuenta ${me}. Revisa los correos de esDeCasa() en las reglas de Firestore.`);
+}
+const falloEn = donde => e => fallo(e, donde);
 function mostrar(sel) {
   for (const v of ["#v-cargando", "#v-config", "#v-login", "#v-lista", "#v-receta", "#v-editor"]) $(v).hidden = v !== sel;
   window.scrollTo(0, 0);
@@ -660,6 +673,23 @@ function abrirHoja(d) { document.querySelectorAll("dialog[open]").forEach(x => x
 document.addEventListener("click", e => { if (e.target.closest("[data-cerrar]")) e.target.closest("dialog")?.close(); });
 document.querySelectorAll("dialog").forEach(d => d.addEventListener("click", e => { if (e.target === d) d.close(); }));
 const ymd = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+const DIAS_LARGO = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+// "cena del jueves 23", y para hoy y mañana lo natural: "cena de hoy".
+function cuandoTxt({ fecha, slot }) {
+  const d = new Date(fecha + "T12:00"), hoy = new Date(); hoy.setHours(12, 0, 0, 0);
+  const dias = Math.round((d - hoy) / 86400000);
+  if (dias === 0) return `${slot} de hoy`;
+  if (dias === 1) return `${slot} de mañana`;
+  if (dias < 7) return `${slot} del ${DIAS_LARGO[d.getDay()]}`;
+  return `${slot} del ${DIAS_LARGO[d.getDay()]} ${d.getDate()}`;
+}
+// Versión corta para la tarjeta de la biblioteca.
+function cuandoCorto({ fecha, slot }) {
+  const d = new Date(fecha + "T12:00"), hoy = new Date(); hoy.setHours(12, 0, 0, 0);
+  const dias = Math.round((d - hoy) / 86400000);
+  const cuando = dias === 0 ? "hoy" : dias === 1 ? "mañana" : DIAS[d.getDay()] + " " + d.getDate();
+  return `${cuando}, ${slot}`;
+}
 const minTxt = m => !m ? "" : m < 60 ? `${m} min` : `${Math.floor(m / 60)} h${m % 60 ? " " + (m % 60) + " min" : ""}`;
 const tiempoTotal = r => (r.prep || 0) + (r.coccion || 0);
 
@@ -682,6 +712,8 @@ let recetas = [], escuchas = [];
 const fotos = new Map();          // id -> foto grande ya descargada (caché de esta sesión)
 const minis = new Map();          // id -> miniatura ya descargada (caché de esta sesión)
 const busq = new Map();           // id -> texto para buscar, calculado una sola vez por receta
+const platosVistos = new Map();   // id de plato -> { nombre, recetaId }, para no pedirlo dos veces
+let planificado = new Map();      // id de receta -> [{ fecha, slot }], de hoy en adelante
 const st = { filtro: "todas", orden: localStorage.getItem("recetas-orden") || "reciente", q: "", pintadas: 0 };
 const PAGINA = 24;                // tarjetas que se dibujan de una vez
 let filtradas = [];
@@ -732,6 +764,37 @@ $("#login-correo").addEventListener("submit", async e => {
   catch (er) { errorLogin({ message: "Correo o contraseña incorrectos." }); }
 });
 
+// Qué días está puesta cada receta en el menú del calendario, de hoy en adelante.
+// Son documentos diminutos (un día, con sus platos), así que cuesta muy poco tenerlos al día.
+function escucharMenu() {
+  const desdeHoy = query(collection(db, "menu"), where(documentId(), ">=", ymd(new Date())));
+  escuchas.push(onSnapshot(desdeHoy, async s => {
+    const dias = s.docs.map(d => ({ fecha: d.id, ...d.data() }));
+    // De cada plato que aparece en el menú hace falta saber a qué receta pertenece.
+    const pendientes = new Set();
+    for (const d of dias) for (const slot of ["comida", "cena"]) for (const e of d[slot] || [])
+      if (e?.id && !platosVistos.has(e.id)) pendientes.add(e.id);
+    await Promise.all([...pendientes].map(async id => {
+      try { const x = await getDoc(doc(db, "platos", id)); platosVistos.set(id, x.exists() ? x.data() : {}); }
+      catch { platosVistos.set(id, {}); }
+    }));
+    const m = new Map();
+    for (const d of dias) for (const slot of ["comida", "cena"]) for (const e of d[slot] || []) {
+      const p = platosVistos.get(e?.id) || {};
+      // Si el plato se creó en el calendario y no apunta a ninguna receta, se empareja por el nombre.
+      const rid = p.recetaId || recetas.find(r => norm(r.titulo) === norm(p.nombre || e?.nombre))?.id;
+      if (!rid) continue;
+      if (!p.recetaId && e?.id) enlazarPlato(e.id, rid);
+      if (!m.has(rid)) m.set(rid, []);
+      m.get(rid).push({ fecha: d.fecha, slot, entrada: { id: e.id, nombre: e.nombre } });
+    }
+    for (const v of m.values()) v.sort((a, b) => a.fecha.localeCompare(b.fecha) || (a.slot === "comida" ? -1 : 1));
+    planificado = m;
+    pintarLista(true);
+    if (!$("#v-receta").hidden && rutaActual().r) pintarReceta();
+  }, () => { }));
+}
+
 function escuchar() {
   // Las recetas llegan sin fotos, solo con el texto. Cada miniatura se pide cuando su tarjeta asoma.
   escuchas.push(onSnapshot(collection(db, "recetas"), s => {
@@ -740,7 +803,8 @@ function escuchar() {
     pintarLista(true);
     if (!$("#v-receta").hidden && rutaActual().r) pintarReceta();
     migrarMiniaturas();
-  }, fallo));
+  }, falloEn("recetas")));
+  escucharMenu();
 }
 
 // Las colecciones de las otras dos apps solo se piden cuando hacen falta, y se recuerdan un rato.
@@ -767,9 +831,24 @@ async function migrarMiniaturas() {
     try {
       await setDoc(doc(db, "miniaturas", r.id), { data: r.miniatura });
       await updateDoc(doc(db, "recetas", r.id), { miniatura: deleteField(), tieneMini: true });
-    } catch { break; }
+    } catch (e) {
+      if (e?.code === "permission-denied" && !avisadoMini) { avisadoMini = true; fallo(e, "miniaturas"); }
+      break;
+    }
   }
   migrando = false;
+}
+let avisadoMini = false;
+
+// Un plato creado desde el calendario no sabe de qué receta viene. Si su nombre coincide con una,
+// se le guarda el enlace una sola vez, para que el calendario pueda abrir la receta directamente.
+const enlazados = new Set();
+function enlazarPlato(platoId, recetaId) {
+  if (enlazados.has(platoId)) return;
+  enlazados.add(platoId);
+  setDoc(doc(db, "platos", platoId), { recetaId }, { merge: true })
+    .then(() => { const v = platosVistos.get(platoId); if (v) v.recetaId = recetaId; })
+    .catch(() => { });
 }
 
 // Miniaturas: se descarga la de cada tarjeta justo antes de que entre en pantalla.
@@ -833,10 +912,12 @@ const chipHTML = (v, t) => `<button class="chip" data-f="${esc(v)}" aria-pressed
 function pintarFiltros() {
   const todas = etiquetasUsadas();
   if (st.filtro.startsWith("#") && !todas.includes(st.filtro.slice(1))) st.filtro = "todas";
+  if (st.filtro === "menu" && !planificado.size) st.filtro = "todas";
   let vis = todas.slice(0, ETQS_VISIBLES);
   const activa = st.filtro.startsWith("#") ? st.filtro.slice(1) : null;
   if (activa && !vis.includes(activa)) vis = [activa, ...vis.slice(0, ETQS_VISIBLES - 1)];
   $("#filtros").innerHTML = chipHTML("todas", "Todas") + chipHTML("favoritas", "Favoritas")
+    + (planificado.size ? chipHTML("menu", "En el menú") : "")
     + vis.map(e => chipHTML("#" + e, cap(e))).join("")
     + (todas.length > vis.length ? `<button class="chip" id="mas-etiquetas">${ICO.etq}Más etiquetas</button>` : "");
   $("#orden").value = st.orden;
@@ -845,6 +926,7 @@ function filtrar() {
   const q = norm(st.q);
   filtradas = recetas.filter(r => {
     if (st.filtro === "favoritas" && !r.favorita) return false;
+    if (st.filtro === "menu" && !planificado.has(r.id)) return false;
     if (st.filtro.startsWith("#") && !(r.etiquetas || []).includes(st.filtro.slice(1))) return false;
     return !q || textoBusqueda(r).includes(q);
   });
@@ -859,11 +941,13 @@ function filtrar() {
 function tarjetaHTML(r) {
   const yaTengo = minis.get(r.id) || r.fotoUrl;
   const porPedir = !yaTengo && (r.tieneMini || r.miniatura);
+  const plan = (planificado.get(r.id) || [])[0];
   const meta = [minTxt(tiempoTotal(r)), r.vecesCocinada ? `${r.vecesCocinada} ${r.vecesCocinada === 1 ? "vez" : "veces"}` : ""].filter(Boolean).join(" · ");
   return `<button class="tarjeta" data-id="${r.id}">
     <span class="img"${porPedir ? ` data-mini="${r.id}"` : ""}>${yaTengo ? `<img src="${esc(yaTengo)}" alt="" decoding="async" referrerpolicy="no-referrer">`
       : `<b aria-hidden="true">${esc((r.titulo || "?")[0].toUpperCase())}</b>`}
-      ${r.favorita ? `<span class="fav" title="Favorita">${ICO.corazon}</span>` : ""}</span>
+      ${r.favorita ? `<span class="fav" title="Favorita">${ICO.corazon}</span>` : ""}
+      ${plan ? `<span class="chapa">${esc(cuandoCorto(plan))}</span>` : ""}</span>
     <h3>${esc(r.titulo)}</h3>${meta ? `<small>${meta}${r.favorita ? " · favorita" : ""}</small>` : r.favorita ? `<small>Favorita</small>` : ""}</button>`;
 }
 function pintarTrozo() {
@@ -933,6 +1017,7 @@ function pintarReceta() {
       <span style="display:flex;gap:.5rem"><button class="icono" data-acc="fav" aria-label="${r.favorita ? "Quitar de favoritas" : "Marcar como favorita"}" aria-pressed="${!!r.favorita}">${r.favorita ? ICO.corazon : ICO.corazonV}</button>
       <button class="icono" data-acc="compartir" aria-label="Compartir">${ICO.compartir}</button></span></div></div>
     <div class="ficha"><h1>${esc(r.titulo)}</h1>
+      ${htmlPlanificado(id)}
       ${datos ? `<div class="datos">${datos}</div>` : ""}
       ${(r.etiquetas || []).length ? `<div class="etqs">${r.etiquetas.map(e => `<span>${esc(e)}</span>`).join("")}</div>` : ""}</div>
     <div class="acciones">
@@ -955,6 +1040,15 @@ function pintarReceta() {
     ${r.fuente ? `<section class="bloque"><p class="fuente">Origen: <a href="${esc(r.fuente)}" target="_blank" rel="noopener">${esc(r.fuenteNombre || r.fuente)}</a></p></section>` : ""}
     <section class="bloque"><p class="fuente">Añadida por ${esc(r.creadoPorNombre || nombreDe(r.creadoPor))}${r.editadoPor && r.editadoPor !== r.creadoPor ? `, editada por ${esc(nombreDe(r.editadoPor))}` : ""}.</p></section>`;
 }
+// "En el menú: cena de hoy y comida del sábado 25", con una aspa para quitar cada día.
+function htmlPlanificado(id) {
+  const l = planificado.get(id) || [];
+  if (!l.length) return "";
+  return `<p class="enmenu">${ICO.cal}<span>En el menú:</span>${l.slice(0, 3).map((x, i) =>
+    `<span class="dia-menu">${esc(cuandoCorto(x))}<button data-quitar-menu="${i}" aria-label="Quitar del menú: ${esc(cuandoTxt(x))}">${ICO.x}</button></span>`).join("")}
+    ${l.length > 3 ? `<span class="dia-menu" style="padding-right:.75rem">y ${l.length - 3} más</span>` : ""}</p>`;
+}
+
 function conCronos(texto) {
   const ts = tiemposEnPaso(texto); let h = "", i = 0;
   for (const t of ts) { h += esc(texto.slice(i, t.ini)) + `<button class="crono" data-crono="${t.seg}" data-txt="${esc(t.txt)}">${ICO.reloj}${esc(t.txt)}</button>`; i = t.fin; }
@@ -968,6 +1062,17 @@ $("#v-receta").addEventListener("change", e => {
 $("#v-receta").addEventListener("click", async e => {
   const cr = e.target.closest("[data-crono]");
   if (cr) { desbloquearAudio(); nuevoCrono(+cr.dataset.crono, cr.dataset.txt); return; }
+  const q = e.target.closest("[data-quitar-menu]");
+  if (q) {
+    const x = (planificado.get(rutaActual().r) || [])[+q.dataset.quitarMenu];
+    if (x) {
+      setDoc(doc(db, "menu", x.fecha), { [x.slot]: arrayRemove(x.entrada) }, { merge: true })
+        .then(() => toast(`Quitado del menú: ${cuandoTxt(x)}`,
+          () => setDoc(doc(db, "menu", x.fecha), { [x.slot]: arrayUnion(x.entrada) }, { merge: true }).catch(falloEn("menu"))))
+        .catch(falloEn("menu"));
+    }
+    return;
+  }
   const b = e.target.closest("[data-acc]"); if (!b) return;
   const id = rutaActual().r, r = recetas.find(x => x.id === id); if (!r) return;
   const base = r.raciones || 4;
@@ -975,7 +1080,7 @@ $("#v-receta").addEventListener("click", async e => {
     case "volver": volver("#"); break;
     case "mas": escala.set(id, Math.min((escala.get(id) || base) + 1, 99)); pintarReceta(); break;
     case "menos": escala.set(id, Math.max((escala.get(id) || base) - 1, 1)); pintarReceta(); break;
-    case "fav": updateDoc(doc(db, "recetas", id), { favorita: !r.favorita }).catch(fallo); break;
+    case "fav": updateDoc(doc(db, "recetas", id), { favorita: !r.favorita }).catch(falloEn("recetas")); break;
     case "cocinar": desbloquearAudio(); ir("#cocinar=" + id); break;
     case "editar": ir("#editar=" + id); break;
     case "menu": abrirMenu(r); break;
@@ -1004,7 +1109,7 @@ $("#hmas-lista").addEventListener("click", e => {
 });
 async function borrarReceta(r) {
   if (!confirm(`¿Borrar «${r.titulo}»? No se puede deshacer.`)) return;
-  await deleteDoc(doc(db, "recetas", r.id)).catch(fallo);
+  await deleteDoc(doc(db, "recetas", r.id)).catch(falloEn("recetas"));
   if (r.tieneFoto) deleteDoc(doc(db, "fotos", r.id)).catch(() => { });
   if (r.tieneMini) deleteDoc(doc(db, "miniaturas", r.id)).catch(() => { });
   minis.delete(r.id); fotos.delete(r.id);
@@ -1088,8 +1193,8 @@ fe.addEventListener("submit", async e => {
     }
     if (fotoNueva) {
       fotos.set(id, fotoNueva); minis.set(id, miniNueva);
-      setDoc(doc(db, "fotos", id), { data: fotoNueva }).catch(fallo);
-      setDoc(doc(db, "miniaturas", id), { data: miniNueva }).catch(fallo);
+      setDoc(doc(db, "fotos", id), { data: fotoNueva }).catch(falloEn("fotos"));
+      setDoc(doc(db, "miniaturas", id), { data: miniNueva }).catch(falloEn("miniaturas"));
     } else if (fotoNueva === null) {
       fotos.delete(id); minis.delete(id);
       if (editando?.tieneFoto) deleteDoc(doc(db, "fotos", id)).catch(() => { });
@@ -1240,11 +1345,11 @@ $("#hc-si").addEventListener("click", () => {
     const it = compraCtx.items.find(x => norm(x.name) === norm(g.nombre));
     if (it?.onList) continue;
     n++;
-    if (it) updateDoc(doc(db, "items", it.id), { onList: true, ...sello }).catch(fallo);
+    if (it) updateDoc(doc(db, "items", it.id), { onList: true, ...sello }).catch(falloEn("items"));
     else addDoc(collection(db, "items"), {
       name: cap(g.nombre), category: g.cat, qty: g.qty, note: `Para: ${compraCtx.r.titulo}`,
       recurring: false, freq: null, onList: true, lastBought: null, ...sello
-    }).catch(fallo);
+    }).catch(falloEn("items"));
   }
   $("#h-compra").close();
   delete cacheCol.items;
@@ -1263,7 +1368,11 @@ async function abrirMenu(r) {
     return `<button class="dia" data-fecha="${ymd(d)}" aria-pressed="${i === 0}">${ICO.tic}${i === 0 ? "hoy" : i === 1 ? "mañana" : DIAS[d.getDay()]}<b>${d.getDate()}</b></button>`;
   }).join("");
   pintarSlot();
-  $("#hm-info").textContent = platoDe(r) ? "" : "Se creará el plato en el calendario con los ingredientes de la receta.";
+  const ya = planificado.get(r.id) || [];
+  $("#hm-info").textContent = [
+    ya.length ? `Ya está en el menú: ${ya.slice(0, 3).map(cuandoTxt).join(", ")}.` : "",
+    platoDe(r) ? "" : "Se creará el plato en el calendario con los ingredientes de la receta."
+  ].filter(Boolean).join(" ");
   abrirHoja($("#h-menu"));
 }
 function pintarSlot() { $("#hm-slot").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.slot === menuCtx.slot)); }
