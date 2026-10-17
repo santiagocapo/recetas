@@ -4,7 +4,7 @@ Recetario compartido para dos, en la línea de Crouton, pero como app web. Funci
 
 ## Qué hace
 
-- **Biblioteca** de recetas con foto, búsqueda por nombre, ingrediente o etiqueta, favoritas y orden por recientes, A–Z, más cocinadas o más rápidas.
+- **Biblioteca** de recetas con foto, búsqueda por nombre, ingrediente o etiqueta, favoritas y orden por recientes, A–Z, más cocinadas o más rápidas. Las tarjetas se dibujan de 24 en 24 según se baja, y cada foto pequeña se pide justo antes de asomar por la pantalla.
 - **Importar** desde una web (lee el formato estándar de recetas que usan casi todas las webs de cocina), desde un texto pegado o desde una foto de un libro (lee el texto de la imagen en el propio móvil).
 - **Raciones**: cambia las raciones y se recalculan las cantidades, con fracciones (½, ¼, ⅓…).
 - **Modo cocina**: un paso por pantalla en letra grande, se pasa con los botones o deslizando, la pantalla no se apaga y bajo cada paso aparecen las cantidades de los ingredientes que menciona.
@@ -38,11 +38,28 @@ Las fotos se guardan en Firestore y no en Firebase Storage porque Storage ahora 
 
 ## Modelo de datos
 
-**`recetas`**: `titulo`, `raciones`, `prep` y `coccion` (minutos), `ingredientes` y `pasos` (listas de líneas; las que empiezan por `#` son apartados), `etiquetas`, `notas`, `fuente`, `fuenteNombre`, `favorita`, `vecesCocinada`, `ultimaVez`, `miniatura` (foto pequeña), `tieneFoto`, `fotoUrl` (foto externa si no se pudo copiar), `creadoPor`, `creadoPorNombre`, `creadoEn`, `editadoPor`, `editadoEn`.
+**`recetas`**: solo texto, para que abrir la app no descargue ninguna foto. `titulo`, `raciones`, `prep` y `coccion` (minutos), `ingredientes` y `pasos` (listas de líneas; las que empiezan por `#` son apartados), `etiquetas`, `notas`, `fuente`, `fuenteNombre`, `favorita`, `vecesCocinada`, `ultimaVez`, `tieneFoto`, `tieneMini`, `fotoUrl` (foto externa si no se pudo copiar), `creadoPor`, `creadoPorNombre`, `creadoEn`, `editadoPor`, `editadoEn`.
 
-**`fotos`**: un documento por receta con el mismo identificador y el campo `data` (foto grande). Solo se descarga al abrir la receta.
+**`miniaturas`**: un documento por receta, con el mismo identificador y el campo `data` (foto pequeña, lado máximo 420 px). Se pide una a una cuando su tarjeta va a aparecer.
+
+**`fotos`**: igual, con la foto grande (lado máximo 1200 px). Solo se descarga al abrir la receta.
+
+> Las recetas guardadas antes de octubre de 2026 llevaban la miniatura dentro del propio documento. La app las pasa a `miniaturas` sola, en segundo plano y sin avisar, la primera vez que se abre.
 
 **Colecciones de las otras apps**: añade productos a `items` con el mismo formato que la lista de la compra, crea platos en `platos` (con el campo extra `recetaId`, que el calendario ignora) y escribe en `menu`.
+
+## Criterios de diseño aplicados
+
+- **Rendimiento**: la lista descarga solo texto; las fotos pequeñas van llegando una a una y las grandes solo al abrir una receta. Los productos de la compra y los platos del calendario se piden al abrir su ventana, no al arrancar. La búsqueda espera a que se deje de escribir y compara un texto ya preparado por receta.
+- **Ligereza visual**: sin líneas divisorias ni marcos; la separación la marcan el espacio (múltiplos de 8 px) y los fondos suaves. Interlineado de 1,6 en el texto descriptivo.
+- **Tamaños táctiles**: todo lo que se pulsa mide al menos 44 px, y cada fila de ingrediente 52 px, con el ingrediente entero como zona de toque.
+- **Zoom**: medidas en `rem`, así que el navegador puede ampliar al 200 % sin que nada se salga ni aparezca desplazamiento lateral.
+- **Pocas cosas a la vez**: cuatro etiquetas a la vista y el resto en «Más etiquetas»; en la receta, tres acciones y el resto en «Más».
+- **Sin depender del color**: lo seleccionado lleva una marca de verificación, las favoritas un corazón y la palabra «favorita», y el temporizador terminado dice «¡Ya!».
+- **Movimiento**: solo `transform` y `opacity`, de una décima de segundo, y nada si el móvil tiene activado reducir movimiento.
+- **Teclado**: todo alcanzable con el tabulador y con el recuadro de foco siempre visible.
+
+Referencias: WCAG 2.2 AA, WAI-ARIA, Material Design 3, Apple HIG, Nielsen Norman Group, Refactoring UI.
 
 ## Importar desde webs: por qué hace falta un intermediario
 

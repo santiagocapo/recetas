@@ -18,172 +18,194 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#F3F4EF; --sup:#FFFFFF; --tinta:#1F2B25; --suave:#5F6A63; --linea:#DCDFD6;
-  --azafran:#E3A018; --azafran-t:#FBEFD2; --romero:#2F5D45; --romero-t:#E1EBE4; --peligro:#B3261E;
+  /* Color. Mismos tonos que la primera versión: verde romero, azafrán y papel. */
+  --bg:#F3F4EF; --sup:#FFFFFF; --tinta:#1F2B25; --suave:#515C56; --linea:#DCDFD6;
+  --borde:#6E7A73;                       /* contraste 3:1 para bordes de campos */
+  --azafran:#E3A018; --azafran-t:#FBEFD2; --romero:#2A5540; --romero-t:#E1EBE4; --peligro:#A3201A; --peligro-t:#F7E4E2;
   --titulo:"Bricolage Grotesque", ui-rounded, system-ui, sans-serif;
   --texto:system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --r:14px; --sa-t:env(safe-area-inset-top,0px); --sa-b:env(safe-area-inset-bottom,0px);
+  /* Espaciado en múltiplos de 8 px, en rem para que aguante el zoom */
+  --e05:.25rem; --e1:.5rem; --e2:1rem; --e3:1.5rem; --e4:2rem;
+  --r:.875rem; --toque:2.75rem;           /* 44 px: área mínima accionable */
+  --fila:3.25rem;                         /* 52 px: alto mínimo de fila de lista */
+  --sa-t:env(safe-area-inset-top,0px); --sa-b:env(safe-area-inset-bottom,0px);
   color-scheme:light dark;
 }
 @media (prefers-color-scheme:dark){:root{
-  --bg:#141A17; --sup:#1C2420; --tinta:#E8ECE6; --suave:#9AA59F; --linea:#2C3631;
-  --azafran:#F0B43A; --azafran-t:#3A301A; --romero:#8CC3A5; --romero-t:#22332A; --peligro:#F2B8B5;
+  --bg:#141A17; --sup:#1F2823; --tinta:#E8ECE6; --suave:#A9B3AD; --linea:#2C3631;
+  --borde:#8A958E;
+  --azafran:#F0B43A; --azafran-t:#3A301A; --romero:#8CC3A5; --romero-t:#22332A; --peligro:#F2B8B5; --peligro-t:#3A2422;
 }}
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--tinta);font:16px/1.5 var(--texto);-webkit-text-size-adjust:100%}
-body{padding-bottom:calc(90px + var(--sa-b))}
+html{font-size:100%}
+html,body{margin:0;background:var(--bg);color:var(--tinta);font:1rem/1.6 var(--texto);-webkit-text-size-adjust:100%}
+body{padding-bottom:calc(5.5rem + var(--sa-b))}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
-:focus-visible{outline:3px solid var(--azafran);outline-offset:2px}
+:focus-visible{outline:3px solid var(--azafran);outline-offset:2px;border-radius:.25rem}
 [hidden]{display:none!important}
 a{color:var(--romero)}
-.vista{max-width:760px;margin:0 auto}
-.centro{min-height:80vh;display:grid;place-content:center;text-align:center;padding:24px;gap:14px}
+img{max-width:100%}
+.vista{max-width:48rem;margin:0 auto}
+.centro{min-height:80vh;display:grid;place-content:center;text-align:center;padding:var(--e3);gap:var(--e2)}
+.solo-lectores{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* Movimiento: solo transform y opacidad, y muy corto. */
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}}
 
 /* ---------- cabecera ---------- */
-header.cab{position:sticky;top:0;z-index:5;background:var(--bg);padding:calc(10px + var(--sa-t)) 16px 8px;display:flex;align-items:center;gap:6px}
-header.cab h1{font:800 34px/1 var(--titulo);letter-spacing:-.02em;margin:0;flex:1}
-.icono{color:inherit;width:40px;height:40px;border-radius:50%;border:0;background:transparent;display:grid;place-items:center;text-decoration:none;flex:none}
+header.cab{position:sticky;top:0;z-index:5;background:var(--bg);padding:calc(var(--e1) + var(--sa-t)) var(--e2) var(--e1);display:flex;align-items:center;gap:var(--e05)}
+header.cab h1{font:800 clamp(1.375rem,7vw,2.125rem)/1.1 var(--titulo);letter-spacing:-.02em;margin:0;flex:1;min-width:0;overflow-wrap:anywhere}
+.icono{color:inherit;width:var(--toque);height:var(--toque);border-radius:50%;border:0;background:transparent;display:grid;place-items:center;text-decoration:none;flex:none}
 .icono:active{background:var(--linea)}
-.icono svg{width:22px;height:22px}
-.avatar{background:var(--romero);color:var(--sup);font-weight:700;font-size:15px}
-.buscar{margin:4px 16px 10px;position:relative}
-.buscar input{width:100%;border:1px solid var(--linea);background:var(--sup);border-radius:12px;padding:11px 14px 11px 40px}
-.buscar svg{position:absolute;left:12px;top:50%;translate:0 -50%;width:18px;color:var(--suave)}
-.filtros{display:flex;gap:8px;overflow-x:auto;padding:0 16px 12px;scrollbar-width:none}
+.icono svg{width:1.375rem;height:1.375rem}
+.avatar{background:var(--romero);color:var(--bg);font-weight:700;font-size:.9375rem}
+.buscar{margin:0 var(--e2) var(--e1);position:relative}
+.buscar input{width:100%;background:var(--sup);border:0;border-bottom:2px solid var(--borde);border-radius:.75rem .75rem .25rem .25rem;padding:.75rem var(--e2) .75rem 2.5rem;min-height:var(--toque)}
+.buscar svg{position:absolute;left:.75rem;top:50%;translate:0 -50%;width:1.125rem;color:var(--suave)}
+.filtros{display:flex;gap:var(--e1);overflow-x:auto;padding:0 var(--e2) var(--e1);scrollbar-width:none}
 .filtros::-webkit-scrollbar{display:none}
-.chip{flex:none;border:1px solid var(--linea);background:var(--sup);border-radius:999px;padding:6px 13px;font-size:14px;white-space:nowrap}
-.chip[aria-pressed="true"]{background:var(--tinta);color:var(--bg);border-color:var(--tinta)}
-select.chip{appearance:none;padding-right:13px}
+.chip{flex:none;border:0;background:var(--romero-t);color:var(--tinta);border-radius:999px;padding:0 var(--e2);min-height:var(--toque);font-size:.9375rem;white-space:nowrap;display:inline-flex;align-items:center;gap:.375rem}
+.chip svg{width:1rem;height:1rem;flex:none}
+.chip .tic{display:none}
+.chip[aria-pressed="true"]{background:var(--tinta);color:var(--bg)}
+.chip[aria-pressed="true"] .tic{display:block}
+.resumen{display:flex;align-items:center;gap:var(--e1);padding:0 var(--e2) var(--e1);color:var(--suave);font-size:.875rem;flex-wrap:wrap}
+.resumen label{display:inline-flex;align-items:center;gap:var(--e1);min-width:0;flex-wrap:wrap}
+.resumen select{background:var(--sup);color:var(--tinta);border:0;border-bottom:2px solid var(--borde);border-radius:.5rem .5rem .25rem .25rem;padding:0 var(--e1);min-height:var(--toque);max-width:100%}
 
 /* ---------- rejilla de recetas ---------- */
-.rejilla{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:18px 12px;padding:0 16px}
-.tarjeta{border:0;background:none;padding:0;text-align:left;display:flex;flex-direction:column;gap:7px}
+.rejilla{display:grid;grid-template-columns:repeat(auto-fill,minmax(10rem,1fr));gap:var(--e3) var(--e1);padding:0 var(--e2)}
+.tarjeta{border:0;background:none;padding:0;text-align:left;display:flex;flex-direction:column;gap:var(--e1);color:inherit}
 .tarjeta .img{aspect-ratio:4/3;border-radius:var(--r);overflow:hidden;background:var(--azafran-t);display:grid;place-items:center;position:relative}
-.tarjeta .img img{width:100%;height:100%;object-fit:cover}
-.tarjeta .img b{font:800 44px/1 var(--titulo);color:var(--azafran)}
-.tarjeta .fav{position:absolute;top:7px;right:7px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.45);color:#fff;display:grid;place-items:center}
-.tarjeta .fav svg{width:14px}
-.tarjeta h3{font:700 16px/1.25 var(--titulo);margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.tarjeta small{color:var(--suave);font-size:13px;margin-top:-4px}
-.vacio{color:var(--suave);padding:40px 24px;text-align:center}
-.vacio strong{display:block;font:700 22px/1.2 var(--titulo);color:var(--tinta);margin-bottom:6px}
+.tarjeta .img img{width:100%;height:100%;object-fit:cover;display:block}
+.tarjeta .img b{font:800 2.75rem/1 var(--titulo);color:var(--azafran)}
+.tarjeta .fav{position:absolute;top:var(--e1);right:var(--e1);width:1.75rem;height:1.75rem;border-radius:50%;background:rgba(0,0,0,.5);color:#fff;display:grid;place-items:center}
+.tarjeta .fav svg{width:.875rem}
+.tarjeta h3{font:700 1rem/1.3 var(--titulo);margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tarjeta small{color:var(--suave);font-size:.8125rem;line-height:1.4;margin-top:-.375rem}
+#centinela{height:1px}
+.vacio{color:var(--suave);padding:var(--e4) var(--e3);text-align:center;line-height:1.6}
+.vacio strong{display:block;font:700 1.375rem/1.3 var(--titulo);color:var(--tinta);margin-bottom:var(--e1)}
 
-.fab{position:fixed;right:18px;bottom:calc(18px + var(--sa-b));z-index:6;border:0;border-radius:999px;background:var(--azafran);color:#1F2B25;font-weight:700;padding:15px 22px;display:flex;gap:8px;align-items:center;box-shadow:0 6px 20px rgba(0,0,0,.18)}
-.fab svg{width:20px}
+.fab{position:fixed;right:var(--e2);bottom:calc(var(--e2) + var(--sa-b));z-index:6;border:0;border-radius:999px;background:var(--azafran);color:#1F2B25;font-weight:700;padding:0 var(--e3);min-height:3.5rem;display:flex;gap:var(--e1);align-items:center;box-shadow:0 .375rem 1.25rem rgba(0,0,0,.18)}
+.fab svg{width:1.25rem}
 
 /* ---------- detalle ---------- */
 .portada{position:relative;background:var(--azafran-t);aspect-ratio:4/3;max-height:52vh;width:100%;overflow:hidden}
 .portada img{width:100%;height:100%;object-fit:cover;display:block}
-.portada.sin{aspect-ratio:auto;height:calc(64px + var(--sa-t));background:var(--bg)}
-.flotantes{position:absolute;top:calc(8px + var(--sa-t));left:8px;right:8px;display:flex;justify-content:space-between}
-.flotantes .icono{background:rgba(0,0,0,.45);color:#fff}
+.portada.sin{aspect-ratio:auto;height:calc(var(--toque) + var(--e2) + var(--sa-t));background:var(--bg)}
+.flotantes{position:absolute;top:calc(var(--e1) + var(--sa-t));left:var(--e1);right:var(--e1);display:flex;justify-content:space-between;gap:var(--e1)}
+.flotantes .icono{background:rgba(0,0,0,.5);color:#fff}
 .portada.sin .flotantes .icono{background:transparent;color:var(--tinta)}
-.ficha{padding:18px 18px 0}
-.ficha h1{font:800 clamp(28px,7.5vw,40px)/1.05 var(--titulo);letter-spacing:-.02em;margin:0 0 10px}
-.datos{display:flex;flex-wrap:wrap;gap:6px 16px;color:var(--suave);font-size:14px}
+.ficha{padding:var(--e2) var(--e2) 0}
+.ficha h1{font:800 clamp(1.75rem,7vw,2.5rem)/1.1 var(--titulo);letter-spacing:-.02em;margin:0 0 var(--e1)}
+.datos{display:flex;flex-wrap:wrap;gap:var(--e05) var(--e2);color:var(--suave);font-size:.875rem;line-height:1.6}
 .datos b{color:var(--tinta);font-weight:600}
-.etqs{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.etqs span{font-size:13px;background:var(--romero-t);color:var(--romero);border-radius:999px;padding:2px 10px}
-.acciones{display:flex;gap:8px;overflow-x:auto;padding:16px 18px 4px;scrollbar-width:none}
+.etqs{display:flex;flex-wrap:wrap;gap:var(--e1);margin-top:var(--e1)}
+.etqs span{font-size:.8125rem;background:var(--romero-t);color:var(--tinta);border-radius:999px;padding:.25rem .75rem}
+.acciones{display:flex;gap:var(--e1);overflow-x:auto;padding:var(--e2);scrollbar-width:none}
 .acciones::-webkit-scrollbar{display:none}
-.btn{border:1px solid var(--linea);background:var(--sup);border-radius:12px;padding:10px 14px;display:inline-flex;align-items:center;gap:7px;font-weight:600;font-size:15px;white-space:nowrap}
-.btn svg{width:18px;height:18px}
-.btn.pri{background:var(--romero);color:var(--sup);border-color:var(--romero)}
-.btn.aza{background:var(--azafran);color:#1F2B25;border-color:var(--azafran)}
-.btn.peligro{color:var(--peligro)}
+.btn{border:0;background:var(--romero-t);color:var(--tinta);border-radius:.75rem;padding:0 var(--e2);min-height:var(--toque);display:inline-flex;align-items:center;justify-content:center;gap:var(--e1);font-weight:600;font-size:.9375rem;white-space:nowrap}
+.btn svg{width:1.125rem;height:1.125rem;flex:none}
+.btn.pri{background:var(--romero);color:var(--bg)}
+.btn.aza{background:var(--azafran);color:#1F2B25}
+.btn.peligro{background:var(--peligro-t);color:var(--peligro)}
+.btn.llano{background:transparent}
 .btn:disabled{opacity:.5}
-section.bloque{padding:10px 18px}
-section.bloque h2{font:700 22px/1.2 var(--titulo);margin:18px 0 8px;display:flex;align-items:center;gap:10px}
-.raciones{margin-left:auto;display:flex;align-items:center;gap:4px;font:600 15px var(--texto)}
-.raciones button{width:34px;height:34px;border-radius:50%;border:1px solid var(--linea);background:var(--sup);font-size:18px;line-height:1}
-.raciones span{min-width:92px;text-align:center}
+section.bloque{padding:0 var(--e2)}
+section.bloque h2{font:700 1.375rem/1.3 var(--titulo);margin:var(--e3) 0 var(--e1);display:flex;align-items:center;gap:var(--e1);flex-wrap:wrap}
+.raciones{margin-left:auto;display:flex;align-items:center;gap:var(--e05);font:600 .9375rem/1.4 var(--texto)}
+.raciones button{width:var(--toque);height:var(--toque);border-radius:50%;border:0;background:var(--romero-t);color:var(--tinta);font-size:1.25rem;line-height:1}
+.raciones span{min-width:3.5rem;text-align:center;line-height:1.3}
 ul.ings{list-style:none;margin:0;padding:0}
-ul.ings li{border-bottom:1px solid var(--linea)}
-ul.ings li.seccion{border:0;font-weight:700;color:var(--suave);font-size:14px;padding:14px 0 2px}
-ul.ings label{display:flex;gap:12px;padding:10px 0;align-items:baseline}
-ul.ings input{accent-color:var(--romero);width:18px;height:18px;flex:none;translate:0 3px}
+ul.ings li.seccion{font-weight:700;color:var(--suave);font-size:.875rem;padding:var(--e2) 0 0}
+ul.ings label{display:flex;gap:var(--e2);padding:var(--e1) 0;align-items:center;min-height:var(--fila);line-height:1.6}
+ul.ings input{accent-color:var(--romero);width:1.375rem;height:1.375rem;flex:none}
 ul.ings input:checked + span{text-decoration:line-through;color:var(--suave)}
-.cant{font-weight:700}
 ol.pasos{list-style:none;margin:0;padding:0;counter-reset:p}
-ol.pasos li{counter-increment:p;display:grid;grid-template-columns:34px 1fr;gap:10px;padding:10px 0}
-ol.pasos li::before{content:counter(p);font:800 24px/1.2 var(--titulo);color:var(--azafran)}
-ol.pasos li.seccion{display:block;font-weight:700;color:var(--suave);font-size:14px;counter-increment:none}
+ol.pasos li{counter-increment:p;display:grid;grid-template-columns:2rem 1fr;gap:var(--e1);padding:var(--e1) 0;line-height:1.6}
+ol.pasos li::before{content:counter(p);font:800 1.5rem/1.3 var(--titulo);color:var(--azafran)}
+ol.pasos li.seccion{display:block;font-weight:700;color:var(--suave);font-size:.875rem;counter-increment:none;padding-top:var(--e2)}
 ol.pasos li.seccion::before{content:none}
-.crono{display:inline-flex;align-items:center;gap:4px;border:0;background:var(--azafran-t);color:inherit;border-radius:8px;padding:0 7px;font-weight:600}
-.crono svg{width:14px}
-.notas{white-space:pre-wrap;color:var(--suave)}
-.fuente{font-size:14px;color:var(--suave);word-break:break-word}
+.crono{display:inline-flex;align-items:center;gap:var(--e05);border:0;background:var(--azafran-t);color:inherit;border-radius:.5rem;padding:.25rem .5rem;font-weight:600;min-height:var(--toque);vertical-align:middle}
+.crono svg{width:.875rem}
+.notas{white-space:pre-wrap;color:var(--suave);line-height:1.6}
+.fuente{font-size:.875rem;color:var(--suave);word-break:break-word;line-height:1.6}
 
 /* ---------- formularios y hojas ---------- */
-dialog.hoja{border:0;padding:0;margin:auto auto 0;width:100%;max-width:640px;max-height:92vh;border-radius:22px 22px 0 0;background:var(--sup);color:var(--tinta)}
+dialog.hoja{border:0;padding:0;margin:auto auto 0;width:100%;max-width:40rem;max-height:92vh;border-radius:1.25rem 1.25rem 0 0;background:var(--sup);color:var(--tinta)}
 dialog.hoja::backdrop{background:rgba(10,15,12,.5)}
-@media (min-width:700px){dialog.hoja{margin:auto;border-radius:22px}}
-.hoja-cuerpo{padding:20px 18px calc(18px + var(--sa-b));display:flex;flex-direction:column;gap:14px}
-.hoja h2{font:700 22px/1.2 var(--titulo);margin:0}
-.hoja p.ayuda{margin:-6px 0 0;color:var(--suave);font-size:14px}
-.pie{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
-label.campo{display:flex;flex-direction:column;gap:5px;font-size:14px;font-weight:600;color:var(--suave)}
-.campo input,.campo textarea,.campo select{border:1px solid var(--linea);border-radius:10px;background:var(--bg);padding:10px 12px;font-weight:400;color:var(--tinta);width:100%}
-.campo textarea{min-height:120px;resize:vertical;line-height:1.45}
-.fila{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.opciones{display:grid;gap:10px}
-.opcion{display:flex;gap:14px;align-items:center;text-align:left;border:1px solid var(--linea);background:var(--bg);border-radius:14px;padding:14px}
-.opcion svg{width:26px;height:26px;color:var(--romero);flex:none}
+@media (min-width:44rem){dialog.hoja{margin:auto;border-radius:1.25rem}}
+.hoja-cuerpo{padding:var(--e3) var(--e2) calc(var(--e2) + var(--sa-b));display:flex;flex-direction:column;gap:var(--e2)}
+.hoja h2{font:700 1.375rem/1.3 var(--titulo);margin:0}
+.hoja p.ayuda{margin:calc(var(--e1) * -1) 0 0;color:var(--suave);font-size:.875rem;line-height:1.6}
+.pie{display:flex;gap:var(--e1);justify-content:flex-end;flex-wrap:wrap}
+label.campo{display:flex;flex-direction:column;gap:var(--e05);font-size:.875rem;font-weight:600;color:var(--suave)}
+.campo input,.campo textarea,.campo select{border:0;border-bottom:2px solid var(--borde);border-radius:.5rem .5rem .25rem .25rem;background:var(--sup);padding:.625rem var(--e1);font-weight:400;color:var(--tinta);width:100%;min-height:var(--toque);line-height:1.6}
+.campo textarea{min-height:8rem;resize:vertical}
+.fila{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--e1)}
+.opciones{display:grid;gap:var(--e1)}
+.opcion{display:flex;gap:var(--e2);align-items:center;text-align:left;border:0;background:var(--bg);border-radius:var(--r);padding:var(--e2);min-height:var(--fila);color:inherit}
+.opcion svg{width:1.625rem;height:1.625rem;color:var(--romero);flex:none}
 .opcion b{display:block}
-.opcion small{color:var(--suave)}
-.error{color:var(--peligro);font-size:14px;margin:0}
-.progreso{height:6px;background:var(--linea);border-radius:3px;overflow:hidden}
-.progreso i{display:block;height:100%;width:0;background:var(--azafran);transition:width .3s}
+.opcion small{color:var(--suave);line-height:1.6}
+.error{color:var(--peligro);font-size:.875rem;margin:0;line-height:1.6}
+.progreso{height:.375rem;background:var(--linea);border-radius:.1875rem;overflow:hidden}
+.progreso i{display:block;height:100%;width:100%;background:var(--azafran);transform:scaleX(0);transform-origin:left;transition:transform .15s linear}
 .lista-compra{list-style:none;margin:0;padding:0;max-height:48vh;overflow:auto}
-.lista-compra li{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--linea)}
-.lista-compra input{width:20px;height:20px;accent-color:var(--romero)}
-.lista-compra .n{font-weight:600}
+.lista-compra li{display:grid;grid-template-columns:auto 1fr;gap:var(--e05) var(--e2);align-items:center;padding:var(--e1) 0;min-height:var(--fila)}
+.lista-compra input{width:1.375rem;height:1.375rem;accent-color:var(--romero)}
+.lista-compra .n{font-weight:600;line-height:1.6}
 .lista-compra .n small{font-weight:400;color:var(--suave)}
-.lista-compra select{grid-column:2;border:1px solid var(--linea);border-radius:8px;background:var(--bg);padding:4px 8px;font-size:14px;width:max-content}
-.lista-compra li.ya{opacity:.5}
-.dias{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
-.dia{flex:none;width:58px;border:1px solid var(--linea);background:var(--bg);border-radius:12px;padding:8px 0;text-align:center;font-size:13px;line-height:1.2}
-.dia b{display:block;font:700 20px/1.1 var(--titulo)}
-.dia[aria-pressed="true"]{background:var(--romero);color:var(--sup);border-color:var(--romero)}
-.segmento{display:flex;border:1px solid var(--linea);border-radius:12px;overflow:hidden}
-.segmento button{flex:1;border:0;background:var(--bg);padding:10px}
-.segmento button[aria-pressed="true"]{background:var(--tinta);color:var(--bg);font-weight:600}
-.editor{padding:0 18px 30px;display:flex;flex-direction:column;gap:14px}
-.editor .fotoedit{display:flex;gap:12px;align-items:center}
-.editor .fotoedit img,.editor .fotoedit .ph{width:96px;height:72px;border-radius:10px;object-fit:cover;background:var(--azafran-t)}
+.lista-compra select{grid-column:2;border:0;border-bottom:2px solid var(--borde);border-radius:.5rem .5rem .25rem .25rem;background:var(--bg);padding:0 var(--e1);font-size:.875rem;width:max-content;min-height:var(--toque)}
+.lista-compra li.ya .n{color:var(--suave)}
+.dias{display:flex;gap:var(--e1);overflow-x:auto;padding-bottom:var(--e05)}
+.dia{flex:none;width:4rem;min-height:var(--toque);border:0;background:var(--romero-t);color:var(--tinta);border-radius:.75rem;padding:var(--e1) 0;text-align:center;font-size:.8125rem;line-height:1.2}
+.dia b{display:block;font:700 1.25rem/1.2 var(--titulo)}
+.dia .tic{display:none;width:.875rem;margin:0 auto}
+.dia[aria-pressed="true"]{background:var(--romero);color:var(--bg)}
+.dia[aria-pressed="true"] .tic{display:block}
+.segmento{display:flex;gap:var(--e1)}
+.segmento button{flex:1;border:0;background:var(--romero-t);color:var(--tinta);border-radius:.75rem;min-height:var(--toque);display:inline-flex;align-items:center;justify-content:center;gap:var(--e05)}
+.segmento button .tic{display:none;width:1rem}
+.segmento button[aria-pressed="true"]{background:var(--romero);color:var(--bg);font-weight:600}
+.segmento button[aria-pressed="true"] .tic{display:block}
+.editor{padding:0 var(--e2) var(--e4);display:flex;flex-direction:column;gap:var(--e2)}
+.editor .fotoedit{display:flex;gap:var(--e2);align-items:center}
+.editor .fotoedit img,.editor .fotoedit .ph{width:6rem;height:4.5rem;border-radius:.75rem;object-fit:cover;background:var(--azafran-t)}
 
 /* ---------- modo cocina ---------- */
-#cocina{position:fixed;inset:0;z-index:20;background:var(--bg);display:flex;flex-direction:column;padding:calc(8px + var(--sa-t)) 0 calc(12px + var(--sa-b))}
-.coc-cab{display:flex;align-items:center;gap:6px;padding:0 10px}
-.coc-cab .t{flex:1;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--suave)}
-.coc-barra{height:4px;background:var(--linea);margin:8px 18px 0;border-radius:2px;overflow:hidden}
-.coc-barra i{display:block;height:100%;background:var(--azafran);transition:width .25s}
-.cronos{display:flex;gap:8px;overflow-x:auto;padding:10px 18px 0;min-height:0}
+#cocina{position:fixed;inset:0;z-index:20;background:var(--bg);display:flex;flex-direction:column;padding:calc(var(--e1) + var(--sa-t)) 0 calc(var(--e1) + var(--sa-b))}
+.coc-cab{display:flex;align-items:center;gap:var(--e05);padding:0 var(--e1)}
+.coc-cab .t{flex:1;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--suave);min-width:0}
+.coc-barra{height:.25rem;background:var(--linea);margin:var(--e1) var(--e2) 0;border-radius:.125rem;overflow:hidden}
+.coc-barra i{display:block;height:100%;width:100%;background:var(--azafran);transform:scaleX(0);transform-origin:left;transition:transform .12s linear}
+.cronos{display:flex;gap:var(--e1);overflow-x:auto;padding:var(--e1) var(--e2) 0;min-height:0}
 .cronos:empty{display:none}
-.cronito{flex:none;display:flex;align-items:center;gap:8px;border-radius:12px;background:var(--azafran-t);padding:6px 6px 6px 12px;font-variant-numeric:tabular-nums}
-.cronito b{font:700 18px var(--titulo)}
-.cronito small{color:var(--suave);max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cronito button{border:0;background:var(--sup);border-radius:8px;width:30px;height:30px;display:grid;place-items:center}
-.cronito button svg{width:15px}
-.cronito.fin{background:var(--azafran);color:#1F2B25;animation:latido 1s infinite}
-@keyframes latido{50%{opacity:.6}}
-@media (prefers-reduced-motion:reduce){.cronito.fin{animation:none}}
-.coc-paso{flex:1;overflow:auto;padding:22px 24px;display:flex;flex-direction:column;justify-content:center;touch-action:pan-y}
-.coc-num{font:800 clamp(80px,26vw,150px)/.85 var(--titulo);color:var(--azafran);letter-spacing:-.04em}
-.coc-num small{font-size:.22em;color:var(--suave);letter-spacing:0;margin-left:6px}
-.coc-texto{font:500 clamp(22px,6vw,32px)/1.35 var(--titulo);margin:18px 0 0;max-width:30ch}
-.coc-texto .crono{padding:0 9px;border-radius:10px}
-.coc-ings-paso{margin-top:18px;color:var(--suave);font-size:16px}
-.coc-pie{display:flex;gap:10px;padding:0 18px}
-.coc-pie .btn{flex:1;justify-content:center;padding:15px;font-size:17px}
-.coc-pie .btn.ings{flex:0 0 auto}
-#coc-panel{position:absolute;inset:auto 0 0 0;max-height:70vh;overflow:auto;background:var(--sup);border-radius:22px 22px 0 0;padding:18px 18px calc(18px + var(--sa-b));box-shadow:0 -10px 30px rgba(0,0,0,.2)}
+.cronito{flex:none;display:flex;align-items:center;gap:var(--e1);border-radius:.75rem;background:var(--azafran-t);padding:var(--e05) var(--e05) var(--e05) var(--e2);font-variant-numeric:tabular-nums}
+.cronito b{font:700 1.125rem/1.3 var(--titulo)}
+.cronito small{color:var(--suave);max-width:7rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
+.cronito button{border:0;background:var(--sup);color:inherit;border-radius:.5rem;width:var(--toque);height:var(--toque);display:grid;place-items:center}
+.cronito button svg{width:.9375rem}
+.cronito.fin{background:var(--azafran);color:#1F2B25}
+.cronito.fin b{animation:parpadeo 1.2s steps(1,end) infinite}
+@keyframes parpadeo{50%{opacity:.35}}
+.coc-paso{flex:1;overflow:auto;padding:var(--e3);display:flex;flex-direction:column;justify-content:center;touch-action:pan-y}
+.coc-num{font:800 clamp(5rem,26vw,9.375rem)/.85 var(--titulo);color:var(--azafran);letter-spacing:-.04em}
+.coc-num small{font-size:.22em;color:var(--suave);letter-spacing:0;margin-left:var(--e05)}
+.coc-texto{font:500 clamp(1.375rem,6vw,2rem)/1.35 var(--titulo);margin:var(--e2) 0 0;max-width:30ch}
+.coc-texto .crono{padding:0 .5rem;border-radius:.625rem}
+.coc-ings-paso{margin-top:var(--e2);color:var(--suave);font-size:1rem;line-height:1.6}
+.coc-pie{display:flex;gap:var(--e1);padding:0 var(--e2)}
+.coc-pie .btn{flex:1;justify-content:center;min-height:3.5rem;font-size:1.0625rem}
+#coc-panel{position:absolute;inset:auto 0 0 0;max-height:70vh;overflow:auto;background:var(--sup);border-radius:1.25rem 1.25rem 0 0;padding:var(--e2) var(--e2) calc(var(--e2) + var(--sa-b));box-shadow:0 -.625rem 1.875rem rgba(0,0,0,.2)}
 
-#toast{position:fixed;left:50%;bottom:calc(88px + var(--sa-b));translate:-50% 0;z-index:30;background:var(--tinta);color:var(--bg);border-radius:12px;padding:11px 14px;display:flex;gap:14px;align-items:center;max-width:calc(100vw - 32px);box-shadow:0 6px 20px rgba(0,0,0,.25)}
-#toast span{flex:1}#toast button{white-space:nowrap;border:0;background:none;color:var(--azafran);font-weight:700}
-.login{max-width:360px;margin:0 auto;display:flex;flex-direction:column;gap:12px;text-align:left}
-.login h1{font:800 44px/1 var(--titulo);letter-spacing:-.03em;margin:0 0 4px;text-align:center}
+#toast{position:fixed;left:50%;bottom:calc(5.5rem + var(--sa-b));translate:-50% 0;z-index:30;width:max-content;background:var(--tinta);color:var(--bg);border-radius:.75rem;padding:var(--e1) var(--e2);display:flex;gap:var(--e2);align-items:center;max-width:calc(100vw - var(--e4));box-shadow:0 .375rem 1.25rem rgba(0,0,0,.25);line-height:1.5}
+#toast span{flex:1;min-width:0}
+#toast button{border:0;background:none;color:var(--azafran);font-weight:700;white-space:nowrap;min-height:var(--toque);padding:0 var(--e1)}
+.login{max-width:22rem;margin:0 auto;display:flex;flex-direction:column;gap:var(--e2);text-align:left}
+.login h1{font:800 2.75rem/1 var(--titulo);letter-spacing:-.03em;margin:0;text-align:center}
+.login summary{cursor:pointer;color:var(--suave);font-size:.875rem;min-height:var(--toque);display:flex;align-items:center}
 </style>
 </head>
 <body>
@@ -192,17 +214,17 @@ label.campo{display:flex;flex-direction:column;gap:5px;font-size:14px;font-weigh
 <div id="v-cargando" class="centro"><p>Cargando…</p></div>
 
 <div id="v-config" class="centro" hidden>
-  <h2 style="font:700 24px var(--titulo);margin:0">Falta config.js</h2>
+  <h2 style="font:700 1.5rem/1.3 var(--titulo);margin:0">Falta config.js</h2>
   <p>Sube a este repositorio el mismo <code>config.js</code> que usas en la lista de la compra y el calendario.</p>
 </div>
 
 <div id="v-login" class="centro" hidden>
   <div class="login">
     <h1>Recetas</h1>
-    <button class="btn pri" id="login-google" style="justify-content:center">Entrar con Google</button>
+    <button class="btn pri" id="login-google">Entrar con Google</button>
     <details>
-      <summary style="cursor:pointer;color:var(--suave);font-size:14px">Entrar con correo y contraseña</summary>
-      <form id="login-correo" style="display:flex;flex-direction:column;gap:10px;margin-top:10px">
+      <summary>Entrar con correo y contraseña</summary>
+      <form id="login-correo" style="display:flex;flex-direction:column;gap:1rem;margin-top:1rem">
         <label class="campo">Correo<input type="email" name="correo" autocomplete="email" required></label>
         <label class="campo">Contraseña<input type="password" name="clave" autocomplete="current-password" required></label>
         <button class="btn">Entrar</button>
@@ -225,7 +247,16 @@ label.campo{display:flex;flex-direction:column;gap:5px;font-size:14px;font-weigh
     <input id="q" type="search" placeholder="Buscar por nombre, ingrediente o etiqueta" aria-label="Buscar recetas" autocomplete="off">
   </div>
   <div class="filtros" id="filtros"></div>
+  <div class="resumen">
+    <span id="resumen-n" aria-live="polite"></span>
+    <label style="margin-left:auto">Ordenar
+      <select id="orden">
+        <option value="reciente">Recientes</option><option value="az">A–Z</option>
+        <option value="cocinadas">Más cocinadas</option><option value="rapidas">Más rápidas</option>
+      </select></label>
+  </div>
   <div class="rejilla" id="rejilla"></div>
+  <div id="centinela"></div>
   <div class="vacio" id="lista-vacia" hidden></div>
   <button class="fab" id="btn-anadir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Añadir receta</button>
 </main>
@@ -237,16 +268,16 @@ label.campo{display:flex;flex-direction:column;gap:5px;font-size:14px;font-weigh
 <main id="v-editor" class="vista" hidden>
   <header class="cab">
     <button class="icono" id="ed-cancelar" aria-label="Cancelar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
-    <h1 id="ed-titulo" style="font-size:24px">Nueva receta</h1>
+    <h1 id="ed-titulo" style="font-size:1.5rem">Nueva receta</h1>
     <button class="btn pri" id="ed-guardar">Guardar</button>
   </header>
   <form class="editor" id="ed-form" autocomplete="off">
     <label class="campo">Nombre<input name="titulo" maxlength="120" required></label>
     <div class="fotoedit">
       <img id="ed-foto" alt="" hidden><div class="ph" id="ed-foto-ph"></div>
-      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start">
-        <label class="btn" style="font-size:14px">Elegir foto<input type="file" accept="image/*" id="ed-foto-in" hidden></label>
-        <button type="button" class="btn peligro" id="ed-foto-quitar" style="font-size:14px" hidden>Quitar foto</button>
+      <div style="display:flex;flex-direction:column;gap:.5rem;align-items:flex-start">
+        <label class="btn" style="font-size:.875rem">Elegir foto<input type="file" accept="image/*" id="ed-foto-in" hidden></label>
+        <button type="button" class="btn peligro" id="ed-foto-quitar" style="font-size:.875rem" hidden>Quitar foto</button>
       </div>
     </div>
     <div class="fila">
@@ -255,7 +286,7 @@ label.campo{display:flex;flex-direction:column;gap:5px;font-size:14px;font-weigh
       <label class="campo">Cocción (min)<input name="coccion" type="number" min="0" inputmode="numeric"></label>
     </div>
     <label class="campo">Ingredientes, uno por línea<textarea name="ingredientes" rows="8" placeholder="400 g de garbanzos cocidos&#10;2 dientes de ajo&#10;1 cucharadita de comino&#10;# Para el aliño:&#10;Aceite de oliva"></textarea></label>
-    <p class="ayuda" style="margin:-8px 0 0;font-size:13px;color:var(--suave)">Empieza una línea con # para crear un apartado (por ejemplo, «# Para la salsa»).</p>
+    <p class="ayuda" style="font-size:.8125rem">Empieza una línea con # para crear un apartado (por ejemplo, «# Para la salsa»).</p>
     <label class="campo">Pasos, uno por línea<textarea name="pasos" rows="10" placeholder="Sofríe el ajo 2 minutos.&#10;Añade los garbanzos y cuece 10 minutos."></textarea></label>
     <label class="campo">Etiquetas, separadas por comas<input name="etiquetas" placeholder="cena, rápida, legumbres" list="dl-etiquetas"></label>
     <datalist id="dl-etiquetas"></datalist>
@@ -301,7 +332,7 @@ label.campo{display:flex;flex-direction:column;gap:5px;font-size:14px;font-weigh
   <label class="campo">Enlace<input name="url" type="url" inputmode="url" placeholder="https://…" required></label>
   <p class="error" hidden></p>
   <div class="progreso" hidden><i></i></div>
-  <div class="pie"><button type="button" class="btn" id="pegar-enlace">Pegar</button><span style="flex:1"></span><button type="button" class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="enlace-ok">Importar</button></div>
+  <div class="pie"><button type="button" class="btn llano" id="pegar-enlace">Pegar</button><span style="flex:1"></span><button type="button" class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="enlace-ok">Importar</button></div>
 </form></dialog>
 
 <dialog class="hoja" id="h-texto"><form class="hoja-cuerpo" method="dialog" id="f-texto">
@@ -319,15 +350,30 @@ label.campo{display:flex;flex-direction:column;gap:5px;font-size:14px;font-weigh
   <h2>¿Hay que comprar algo?</h2>
   <p class="ayuda" id="hc-ayuda">Marca solo lo que falte en casa.</p>
   <ul class="lista-compra" id="hc-lista"></ul>
-  <div class="pie"><button class="btn" id="hc-todo">Marcar todo</button><span style="flex:1"></span><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="hc-si" disabled>Añadir a la lista</button></div>
+  <div class="pie"><button class="btn llano" id="hc-todo">Marcar todo</button><span style="flex:1"></span><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="hc-si" disabled>Añadir a la lista</button></div>
 </div></dialog>
 
 <dialog class="hoja" id="h-menu"><div class="hoja-cuerpo">
   <h2>Poner en el menú</h2>
   <div class="dias" id="hm-dias"></div>
-  <div class="segmento" id="hm-slot"><button data-slot="comida" aria-pressed="true">Comida</button><button data-slot="cena" aria-pressed="false">Cena</button></div>
+  <div class="segmento" id="hm-slot">
+    <button data-slot="comida" aria-pressed="true"><svg class="tic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4 10-10"/></svg>Comida</button>
+    <button data-slot="cena" aria-pressed="false"><svg class="tic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4 10-10"/></svg>Cena</button>
+  </div>
   <p class="ayuda" id="hm-info"></p>
   <div class="pie"><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="hm-ok">Poner en el menú</button></div>
+</div></dialog>
+
+<dialog class="hoja" id="h-etiquetas"><div class="hoja-cuerpo">
+  <h2>Todas las etiquetas</h2>
+  <div class="filtros" id="he-lista" style="flex-wrap:wrap;overflow:visible;padding:0"></div>
+  <div class="pie"><button class="btn" data-cerrar>Cerrar</button></div>
+</div></dialog>
+
+<dialog class="hoja" id="h-mas"><div class="hoja-cuerpo">
+  <h2>Más opciones</h2>
+  <div class="opciones" id="hmas-lista"></div>
+  <div class="pie"><button class="btn" data-cerrar>Cancelar</button></div>
 </div></dialog>
 
 <dialog class="hoja" id="h-crono"><form class="hoja-cuerpo" method="dialog" id="f-crono">
@@ -354,7 +400,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult,
   signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, onSnapshot,
-  addDoc, setDoc, updateDoc, deleteDoc, getDoc, serverTimestamp, arrayUnion, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  addDoc, setDoc, updateDoc, deleteDoc, getDoc, getDocs, deleteField, serverTimestamp, arrayUnion, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* NUCLEO-INICIO: funciones puras (sin Firebase ni DOM), probadas aparte */
 const norm = s => String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
@@ -592,7 +638,9 @@ const ICO = {
   papelera: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>',
   pausa: '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>',
   play: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l12-7.5z"/></svg>',
-  x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>'
+  x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+  tic: '<svg class="tic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4 10-10"/></svg>',
+  etq: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11V5a1 1 0 0 1 1-1h6l9 9-7 7z"/><circle cx="8" cy="8" r="1.3"/></svg>'
 };
 let toastT;
 function toast(msg, accion, etiqueta = "Deshacer") {
@@ -603,7 +651,7 @@ function toast(msg, accion, etiqueta = "Deshacer") {
   t.hidden = false; clearTimeout(toastT);
   toastT = setTimeout(() => { t.hidden = true; }, accion ? 6000 : 3500);
 }
-const fallo = e => toast(e?.code === "permission-denied" ? "Sin permiso. Revisa las reglas de Firestore (colecciones recetas y fotos)." : "Error: " + (e?.message || e));
+const fallo = e => toast(e?.code === "permission-denied" ? "Sin permiso. Revisa las reglas de Firestore (colecciones recetas, fotos y miniaturas)." : "Error: " + (e?.message || e));
 function mostrar(sel) {
   for (const v of ["#v-cargando", "#v-config", "#v-login", "#v-lista", "#v-receta", "#v-editor"]) $(v).hidden = v !== sel;
   window.scrollTo(0, 0);
@@ -630,9 +678,13 @@ async function comprimir(fuente, lado, calidad = .72) {
 
 /* =========================  configuración y sesión  ========================= */
 let app, auth, db, USUARIOS = {}, APPS = {}, PROXY = "", me = null;
-let recetas = [], items = [], platos = [], escuchas = [];
-const fotos = new Map();          // id -> dataURL de la foto grande (caché)
-const st = { filtro: "todas", orden: localStorage.getItem("recetas-orden") || "reciente", q: "" };
+let recetas = [], escuchas = [];
+const fotos = new Map();          // id -> foto grande ya descargada (caché de esta sesión)
+const minis = new Map();          // id -> miniatura ya descargada (caché de esta sesión)
+const busq = new Map();           // id -> texto para buscar, calculado una sola vez por receta
+const st = { filtro: "todas", orden: localStorage.getItem("recetas-orden") || "reciente", q: "", pintadas: 0 };
+const PAGINA = 24;                // tarjetas que se dibujan de una vez
+let filtradas = [];
 const nombreDe = email => USUARIOS[(email || "").toLowerCase()] || (email || "").split("@")[0];
 
 (async function inicio() {
@@ -681,14 +733,60 @@ $("#login-correo").addEventListener("submit", async e => {
 });
 
 function escuchar() {
+  // Las recetas llegan sin fotos, solo con el texto. Cada miniatura se pide cuando su tarjeta asoma.
   escuchas.push(onSnapshot(collection(db, "recetas"), s => {
     recetas = s.docs.map(d => ({ id: d.id, ...d.data() }));
-    pintarLista();
+    for (const r of recetas) if (r.miniatura) minis.set(r.id, r.miniatura);
+    pintarLista(true);
     if (!$("#v-receta").hidden && rutaActual().r) pintarReceta();
+    migrarMiniaturas();
   }, fallo));
-  // Estas dos colecciones son de las otras apps: solo se leen para no duplicar productos ni platos.
-  escuchas.push(onSnapshot(collection(db, "items"), s => { items = s.docs.map(d => ({ id: d.id, ...d.data() })); }, () => { }));
-  escuchas.push(onSnapshot(collection(db, "platos"), s => { platos = s.docs.map(d => ({ id: d.id, ...d.data() })); }, () => { }));
+}
+
+// Las colecciones de las otras dos apps solo se piden cuando hacen falta, y se recuerdan un rato.
+const cacheCol = {};
+async function traerCol(nombre, segundos = 120) {
+  const c = cacheCol[nombre];
+  if (c && Date.now() - c.t < segundos * 1000) return c.v;
+  try {
+    const s = await getDocs(collection(db, nombre));
+    cacheCol[nombre] = { t: Date.now(), v: s.docs.map(d => ({ id: d.id, ...d.data() })) };
+  } catch { cacheCol[nombre] = { t: Date.now(), v: c?.v || [] }; }
+  return cacheCol[nombre].v;
+}
+
+// Las recetas guardadas con la versión anterior llevan la miniatura dentro del propio documento.
+// Se mueve a su colección sin que se note, para que abrir la app deje de descargar fotos.
+let migrando = false;
+async function migrarMiniaturas() {
+  if (migrando) return;
+  const viejas = recetas.filter(r => r.miniatura);
+  if (!viejas.length) return;
+  migrando = true;
+  for (const r of viejas) {
+    try {
+      await setDoc(doc(db, "miniaturas", r.id), { data: r.miniatura });
+      await updateDoc(doc(db, "recetas", r.id), { miniatura: deleteField(), tieneMini: true });
+    } catch { break; }
+  }
+  migrando = false;
+}
+
+// Miniaturas: se descarga la de cada tarjeta justo antes de que entre en pantalla.
+const ojo = new IntersectionObserver(es => {
+  for (const e of es) if (e.isIntersecting) { ojo.unobserve(e.target); verMini(e.target); }
+}, { rootMargin: "400px 0px" });
+async function verMini(cont) {
+  const id = cont.dataset.mini;
+  if (!minis.has(id)) {
+    try { const s = await getDoc(doc(db, "miniaturas", id)); minis.set(id, s.exists() ? s.data().data : ""); }
+    catch { return; }
+  }
+  const src = minis.get(id);
+  if (src && cont.isConnected && !cont.querySelector("img")) {
+    const i = new Image(); i.alt = ""; i.decoding = "async"; i.src = src;
+    cont.prepend(i);
+  }
 }
 
 /* =========================  rutas (#r=ID, #editar=ID, #nueva)  ========================= */
@@ -705,7 +803,7 @@ function router() {
   if (r.r) { mostrar("#v-receta"); pintarReceta(); }
   else if (r.editar || "nueva" in r) { if ($("#v-editor").hidden) abrirEditor(r.editar ? recetas.find(x => x.id === r.editar) : borradorImportado); }
   else if (r.cocinar) { const x = recetas.find(z => z.id === r.cocinar); if (x) entrarCocina(x); else ir(""); }
-  else { mostrar("#v-lista"); pintarLista(); window.scrollTo(0, st.scroll || 0); }
+  else { mostrar("#v-lista"); pintarLista(true); window.scrollTo(0, st.scroll || 0); }
   // Enlaces compartidos a la app (Android) o abiertos desde un Atajo de iOS: ?url=… o ?text=…
   const p = new URLSearchParams(location.search);
   const comp = p.get("url") || (p.get("text") || "").match(/https?:\/\/\S+/)?.[0];
@@ -717,48 +815,101 @@ function router() {
 }
 
 /* =========================  biblioteca  ========================= */
-function pintarLista() {
-  if ($("#v-lista").hidden) return;
-  const etqs = [...new Set(recetas.flatMap(r => r.etiquetas || []))].sort((a, b) => a.localeCompare(b, "es"));
-  if (st.filtro.startsWith("#") && !etqs.includes(st.filtro.slice(1))) st.filtro = "todas";
-  const chip = (v, t) => `<button class="chip" data-f="${esc(v)}" aria-pressed="${st.filtro === v}">${esc(t)}</button>`;
-  $("#filtros").innerHTML = `<select class="chip" id="orden" aria-label="Ordenar">
-      <option value="reciente">Recientes</option><option value="az">A–Z</option><option value="cocinadas">Más cocinadas</option><option value="rapidas">Más rápidas</option></select>`
-    + chip("todas", "Todas") + chip("favoritas", "Favoritas") + etqs.map(e => chip("#" + e, cap(e))).join("");
-  $("#orden").value = st.orden;
+// Se dibujan 24 tarjetas de una vez y el resto al bajar, para que da igual tener 20 recetas que 2.000.
+const ETQS_VISIBLES = 4;          // ley de Miller: pocas etiquetas a la vista, el resto en su hoja
 
+function textoBusqueda(r) {
+  const k = r.id + "|" + (r.editadoEn?.toMillis?.() || 0);
+  if (busq.get(r.id)?.k !== k) busq.set(r.id, { k, t: norm([r.titulo, ...(r.etiquetas || []), ...(r.ingredientes || [])].join(" ")) });
+  return busq.get(r.id).t;
+}
+function etiquetasUsadas() {
+  const n = new Map();
+  for (const r of recetas) for (const e of r.etiquetas || []) n.set(e, (n.get(e) || 0) + 1);
+  return [...n.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "es")).map(x => x[0]);
+}
+const chipHTML = (v, t) => `<button class="chip" data-f="${esc(v)}" aria-pressed="${st.filtro === v}">${ICO.tic}${esc(t)}</button>`;
+
+function pintarFiltros() {
+  const todas = etiquetasUsadas();
+  if (st.filtro.startsWith("#") && !todas.includes(st.filtro.slice(1))) st.filtro = "todas";
+  let vis = todas.slice(0, ETQS_VISIBLES);
+  const activa = st.filtro.startsWith("#") ? st.filtro.slice(1) : null;
+  if (activa && !vis.includes(activa)) vis = [activa, ...vis.slice(0, ETQS_VISIBLES - 1)];
+  $("#filtros").innerHTML = chipHTML("todas", "Todas") + chipHTML("favoritas", "Favoritas")
+    + vis.map(e => chipHTML("#" + e, cap(e))).join("")
+    + (todas.length > vis.length ? `<button class="chip" id="mas-etiquetas">${ICO.etq}Más etiquetas</button>` : "");
+  $("#orden").value = st.orden;
+}
+function filtrar() {
   const q = norm(st.q);
-  let l = recetas.filter(r => {
+  filtradas = recetas.filter(r => {
     if (st.filtro === "favoritas" && !r.favorita) return false;
     if (st.filtro.startsWith("#") && !(r.etiquetas || []).includes(st.filtro.slice(1))) return false;
-    if (!q) return true;
-    return norm([r.titulo, ...(r.etiquetas || []), ...(r.ingredientes || [])].join(" ")).includes(q);
+    return !q || textoBusqueda(r).includes(q);
   });
   const t = x => x?.toMillis?.() || 0;
-  const orden = {
+  filtradas.sort({
     reciente: (a, b) => t(b.editadoEn || b.creadoEn) - t(a.editadoEn || a.creadoEn),
     az: (a, b) => a.titulo.localeCompare(b.titulo, "es"),
     cocinadas: (a, b) => (b.vecesCocinada || 0) - (a.vecesCocinada || 0) || a.titulo.localeCompare(b.titulo, "es"),
     rapidas: (a, b) => (tiempoTotal(a) || 999) - (tiempoTotal(b) || 999)
-  }[st.orden];
-  l.sort(orden);
-  $("#rejilla").innerHTML = l.map(r => {
-    const img = r.miniatura || r.fotoUrl;
-    const meta = [minTxt(tiempoTotal(r)), r.vecesCocinada ? `${r.vecesCocinada} ${r.vecesCocinada === 1 ? "vez" : "veces"}` : ""].filter(Boolean).join(", ");
-    return `<button class="tarjeta" data-id="${r.id}">
-      <div class="img">${img ? `<img src="${esc(img)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : `<b>${esc((r.titulo || "?")[0].toUpperCase())}</b>`}
-        ${r.favorita ? `<span class="fav">${ICO.corazon}</span>` : ""}</div>
-      <h3>${esc(r.titulo)}</h3>${meta ? `<small>${meta}</small>` : ""}</button>`;
-  }).join("");
+  }[st.orden]);
+}
+function tarjetaHTML(r) {
+  const yaTengo = minis.get(r.id) || r.fotoUrl;
+  const porPedir = !yaTengo && (r.tieneMini || r.miniatura);
+  const meta = [minTxt(tiempoTotal(r)), r.vecesCocinada ? `${r.vecesCocinada} ${r.vecesCocinada === 1 ? "vez" : "veces"}` : ""].filter(Boolean).join(" · ");
+  return `<button class="tarjeta" data-id="${r.id}">
+    <span class="img"${porPedir ? ` data-mini="${r.id}"` : ""}>${yaTengo ? `<img src="${esc(yaTengo)}" alt="" decoding="async" referrerpolicy="no-referrer">`
+      : `<b aria-hidden="true">${esc((r.titulo || "?")[0].toUpperCase())}</b>`}
+      ${r.favorita ? `<span class="fav" title="Favorita">${ICO.corazon}</span>` : ""}</span>
+    <h3>${esc(r.titulo)}</h3>${meta ? `<small>${meta}${r.favorita ? " · favorita" : ""}</small>` : r.favorita ? `<small>Favorita</small>` : ""}</button>`;
+}
+function pintarTrozo() {
+  const trozo = filtradas.slice(st.pintadas, st.pintadas + PAGINA);
+  if (!trozo.length) return;
+  $("#rejilla").insertAdjacentHTML("beforeend", trozo.map(tarjetaHTML).join(""));
+  st.pintadas += trozo.length;
+  for (const c of $("#rejilla").querySelectorAll(".img[data-mini]")) if (!c.querySelector("img")) ojo.observe(c);
+}
+function pintarLista(conservar) {
+  if ($("#v-lista").hidden) return;
+  pintarFiltros();
+  filtrar();
+  const hasta = conservar ? Math.max(PAGINA, Math.min(st.pintadas, filtradas.length)) : PAGINA;
+  $("#rejilla").innerHTML = "";
+  st.pintadas = 0;
+  while (st.pintadas < hasta && st.pintadas < filtradas.length) pintarTrozo();
+  const n = filtradas.length;
+  $("#resumen-n").textContent = n === recetas.length
+    ? `${n} ${n === 1 ? "receta" : "recetas"}`
+    : `${n} de ${recetas.length} ${recetas.length === 1 ? "receta" : "recetas"}`;
   const v = $("#lista-vacia");
-  v.hidden = l.length > 0;
+  v.hidden = n > 0;
   v.innerHTML = !recetas.length
     ? `<strong>Aún no hay recetas</strong>Pulsa «Añadir receta» para traer la primera desde una web, un texto o una foto.`
     : `<strong>Nada por aquí</strong>No hay recetas que coincidan con la búsqueda o el filtro.`;
 }
-$("#filtros").addEventListener("click", e => { const b = e.target.closest("[data-f]"); if (b) { st.filtro = b.dataset.f; pintarLista(); } });
-$("#filtros").addEventListener("change", e => { if (e.target.id === "orden") { st.orden = e.target.value; localStorage.setItem("recetas-orden", st.orden); pintarLista(); } });
-$("#q").addEventListener("input", e => { st.q = e.target.value; pintarLista(); });
+// Al llegar al final de la rejilla se dibuja el siguiente grupo de tarjetas.
+new IntersectionObserver(es => { if (es.some(e => e.isIntersecting) && !$("#v-lista").hidden) pintarTrozo(); }, { rootMargin: "600px 0px" }).observe($("#centinela"));
+
+$("#filtros").addEventListener("click", e => {
+  if (e.target.closest("#mas-etiquetas")) return abrirEtiquetas();
+  const b = e.target.closest("[data-f]");
+  if (b) { st.filtro = b.dataset.f; pintarLista(); window.scrollTo(0, 0); }
+});
+function abrirEtiquetas() {
+  $("#he-lista").innerHTML = etiquetasUsadas().map(e => chipHTML("#" + e, cap(e))).join("");
+  abrirHoja($("#h-etiquetas"));
+}
+$("#he-lista").addEventListener("click", e => {
+  const b = e.target.closest("[data-f]"); if (!b) return;
+  st.filtro = b.dataset.f; $("#h-etiquetas").close(); pintarLista(); window.scrollTo(0, 0);
+});
+$("#orden").addEventListener("change", e => { st.orden = e.target.value; localStorage.setItem("recetas-orden", st.orden); pintarLista(); });
+let teclaT;
+$("#q").addEventListener("input", e => { st.q = e.target.value; clearTimeout(teclaT); teclaT = setTimeout(() => pintarLista(), 150); });
 $("#rejilla").addEventListener("click", e => { const b = e.target.closest("[data-id]"); if (b) { st.scroll = window.scrollY; ir("#r=" + b.dataset.id); } });
 
 /* =========================  detalle  ========================= */
@@ -769,7 +920,8 @@ function pintarReceta() {
   if (!r) { v.innerHTML = `<div class="centro"><p>Esta receta ya no existe.</p><button class="btn" onclick="location.hash=''">Volver</button></div>`; return; }
   const base = r.raciones || 4, rac = escala.get(id) || base, f = rac / base;
   const tach = marcados.get(id) || new Set();
-  const foto = fotos.get(id) || r.fotoUrl || r.miniatura;
+  // Primero se ve la miniatura que ya estaba descargada y, cuando llega, la foto grande.
+  const foto = fotos.get(id) || r.fotoUrl || minis.get(id) || r.miniatura;
   if (r.tieneFoto && !fotos.has(id)) getDoc(doc(db, "fotos", id)).then(s => { if (s.exists()) { fotos.set(id, s.data().data); if (rutaActual().r === id) pintarReceta(); } }).catch(() => { });
   const datos = [
     r.prep ? `Preparación <b>${minTxt(r.prep)}</b>` : "", r.coccion ? `Cocción <b>${minTxt(r.coccion)}</b>` : "",
@@ -778,7 +930,7 @@ function pintarReceta() {
   v.innerHTML = `
     <div class="portada${foto ? "" : " sin"}">${foto ? `<img src="${esc(foto)}" alt="" referrerpolicy="no-referrer">` : ""}
       <div class="flotantes"><button class="icono" data-acc="volver" aria-label="Volver">${ICO.atras}</button>
-      <span style="display:flex;gap:8px"><button class="icono" data-acc="fav" aria-label="${r.favorita ? "Quitar de favoritas" : "Marcar como favorita"}" aria-pressed="${!!r.favorita}">${r.favorita ? ICO.corazon : ICO.corazonV}</button>
+      <span style="display:flex;gap:.5rem"><button class="icono" data-acc="fav" aria-label="${r.favorita ? "Quitar de favoritas" : "Marcar como favorita"}" aria-pressed="${!!r.favorita}">${r.favorita ? ICO.corazon : ICO.corazonV}</button>
       <button class="icono" data-acc="compartir" aria-label="Compartir">${ICO.compartir}</button></span></div></div>
     <div class="ficha"><h1>${esc(r.titulo)}</h1>
       ${datos ? `<div class="datos">${datos}</div>` : ""}
@@ -787,8 +939,7 @@ function pintarReceta() {
       <button class="btn aza" data-acc="cocinar"${(r.pasos || []).length ? "" : " disabled"}>${ICO.olla}Cocinar</button>
       <button class="btn" data-acc="menu">${ICO.cal}Al menú</button>
       <button class="btn" data-acc="compra">${ICO.carro}A la compra</button>
-      <button class="btn" data-acc="editar">${ICO.lapiz}Editar</button>
-      <button class="btn peligro" data-acc="borrar">${ICO.papelera}Borrar</button>
+      <button class="btn llano" data-acc="opciones" aria-haspopup="dialog">${ICO.mas}Más</button>
     </div>
     <section class="bloque"><h2>Ingredientes
       <span class="raciones"><button data-acc="menos" aria-label="Menos raciones">−</button><span>${rac} ${rac === 1 ? "ración" : "raciones"}</span><button data-acc="mas" aria-label="Más raciones">+</button></span></h2>
@@ -796,7 +947,8 @@ function pintarReceta() {
         if (esSeccion(l)) return `<li class="seccion">${esc(textoSeccion(l))}</li>`;
         const e = escalarIng(l, f);
         return `<li><label><input type="checkbox" data-ing="${i}"${tach.has(i) ? " checked" : ""}><span>${e.cant ? `<span class="cant">${esc(e.cant)}</span> ` : ""}${esc(e.resto)}</span></label></li>`;
-      }).join("") || `<li class="seccion">Sin ingredientes.</li>`}</ul></section>
+      }).join("") || `<li class="seccion">Sin ingredientes.</li>`}</ul>
+      <p class="fuente">Marca lo que ya tengas a mano; las marcas no se guardan.</p></section>
     <section class="bloque"><h2>Pasos</h2>
       <ol class="pasos">${(r.pasos || []).map(p => esSeccion(p) && p.trim().startsWith("#") ? `<li class="seccion">${esc(textoSeccion(p))}</li>` : `<li><span>${conCronos(p)}</span></li>`).join("") || `<li class="seccion">Sin pasos.</li>`}</ol></section>
     ${r.notas ? `<section class="bloque"><h2>Notas</h2><p class="notas">${esc(r.notas)}</p></section>` : ""}
@@ -829,13 +981,36 @@ $("#v-receta").addEventListener("click", async e => {
     case "menu": abrirMenu(r); break;
     case "compra": abrirCompra(r); break;
     case "compartir": compartir(r); break;
-    case "borrar":
-      if (!confirm(`¿Borrar «${r.titulo}»? No se puede deshacer.`)) return;
-      await deleteDoc(doc(db, "recetas", id)).catch(fallo);
-      if (r.tieneFoto) deleteDoc(doc(db, "fotos", id)).catch(() => { });
-      ir(""); toast("Receta borrada");
+    case "opciones": abrirMas(r); break;
+    case "borrar": borrarReceta(r);
   }
 });
+// Hoja con las acciones que se usan menos, para no llenar la pantalla de botones.
+function abrirMas(r) {
+  const op = (acc, icono, titulo, desc) => `<button class="opcion" data-acc="${acc}">${icono}<span><b>${titulo}</b><small>${desc}</small></span></button>`;
+  $("#hmas-lista").innerHTML =
+    op("editar", ICO.lapiz, "Editar receta", "Cambiar ingredientes, pasos, foto o etiquetas.")
+    + op("compartir", ICO.compartir, "Compartir", "Enviar la receta como texto, con las raciones de ahora.")
+    + op("borrar", ICO.papelera, "Borrar receta", "Se quita para los dos y no se puede deshacer.");
+  abrirHoja($("#h-mas"));
+}
+$("#hmas-lista").addEventListener("click", e => {
+  const b = e.target.closest("[data-acc]"); if (!b) return;
+  $("#h-mas").close();
+  const id = rutaActual().r, r = recetas.find(x => x.id === id); if (!r) return;
+  if (b.dataset.acc === "editar") ir("#editar=" + id);
+  else if (b.dataset.acc === "compartir") compartir(r);
+  else borrarReceta(r);
+});
+async function borrarReceta(r) {
+  if (!confirm(`¿Borrar «${r.titulo}»? No se puede deshacer.`)) return;
+  await deleteDoc(doc(db, "recetas", r.id)).catch(fallo);
+  if (r.tieneFoto) deleteDoc(doc(db, "fotos", r.id)).catch(() => { });
+  if (r.tieneMini) deleteDoc(doc(db, "miniaturas", r.id)).catch(() => { });
+  minis.delete(r.id); fotos.delete(r.id);
+  ir(""); toast("Receta borrada");
+}
+
 async function compartir(r) {
   const f = (escala.get(r.id) || r.raciones || 4) / (r.raciones || 4);
   const txt = [r.titulo, "", `Ingredientes (${escala.get(r.id) || r.raciones || 4} raciones):`,
@@ -866,7 +1041,7 @@ function abrirEditor(r) {
   fe.elements.notas.value = x.notas || "";
   fe.elements.fuente.value = x.fuente || "";
   $("#dl-etiquetas").innerHTML = [...new Set(recetas.flatMap(z => z.etiquetas || []))].map(e => `<option value="${esc(e)}">`).join("");
-  const img = editando ? (fotos.get(editando.id) || x.miniatura || x.fotoUrl) : (x.fotoImportada || x.fotoUrl);
+  const img = editando ? (fotos.get(editando.id) || minis.get(editando.id) || x.miniatura || x.fotoUrl) : (x.fotoImportada || x.fotoUrl);
   if (!editando && x.fotoImportada) fotoNueva = x.fotoImportada;
   verFotoEditor(img);
   if (editando?.tieneFoto && !fotos.has(editando.id)) getDoc(doc(db, "fotos", editando.id)).then(s => { if (s.exists()) { fotos.set(editando.id, s.data().data); if (fotoNueva === undefined) verFotoEditor(s.data().data); } }).catch(() => { });
@@ -894,21 +1069,32 @@ fe.addEventListener("submit", async e => {
     editadoEn: serverTimestamp(), editadoPor: me
   };
   if (datos.fuente && !editando?.fuenteNombre) { try { datos.fuenteNombre = new URL(datos.fuente).hostname.replace(/^www\./, ""); } catch { } }
+  let miniNueva;
   if (fotoNueva !== undefined) {
     datos.tieneFoto = !!fotoNueva;
-    datos.miniatura = fotoNueva ? await comprimir(fotoNueva, 420, .68) : "";
+    datos.tieneMini = !!fotoNueva;
+    datos.miniatura = deleteField();   // la miniatura vive en su propia colección
     datos.fotoUrl = "";
+    miniNueva = fotoNueva ? await comprimir(fotoNueva, 420, .68) : null;
   } else if (!editando && borradorImportado?.fotoUrl) datos.fotoUrl = borradorImportado.fotoUrl;
   $("#ed-guardar").disabled = true;
   try {
     let id = editando?.id;
     if (id) await updateDoc(doc(db, "recetas", id), datos);
     else {
-      const ref = await addDoc(collection(db, "recetas"), { ...datos, favorita: false, vecesCocinada: 0, creadoEn: serverTimestamp(), creadoPor: me, creadoPorNombre: nombreDe(me) });
+      const { miniatura, ...nuevo } = datos;
+      const ref = await addDoc(collection(db, "recetas"), { ...nuevo, favorita: false, vecesCocinada: 0, creadoEn: serverTimestamp(), creadoPor: me, creadoPorNombre: nombreDe(me) });
       id = ref.id;
     }
-    if (fotoNueva) { fotos.set(id, fotoNueva); setDoc(doc(db, "fotos", id), { data: fotoNueva }).catch(fallo); }
-    else if (fotoNueva === null && editando?.tieneFoto) { fotos.delete(id); deleteDoc(doc(db, "fotos", id)).catch(() => { }); }
+    if (fotoNueva) {
+      fotos.set(id, fotoNueva); minis.set(id, miniNueva);
+      setDoc(doc(db, "fotos", id), { data: fotoNueva }).catch(fallo);
+      setDoc(doc(db, "miniaturas", id), { data: miniNueva }).catch(fallo);
+    } else if (fotoNueva === null) {
+      fotos.delete(id); minis.delete(id);
+      if (editando?.tieneFoto) deleteDoc(doc(db, "fotos", id)).catch(() => { });
+      if (editando?.tieneMini || editando?.miniatura) deleteDoc(doc(db, "miniaturas", id)).catch(() => { });
+    }
     borradorImportado = null;
     if (editando) volver("#r=" + id); else location.replace("#r=" + id);
     toast(editando ? "Cambios guardados" : "Receta guardada");
@@ -958,16 +1144,16 @@ async function importarEnlace(url) {
   const f = $("#f-enlace"), err = f.querySelector(".error"), pr = f.querySelector(".progreso");
   err.hidden = true;
   if (!/^https?:\/\//i.test(url)) { err.textContent = "Escribe un enlace completo, que empiece por https://"; err.hidden = false; return; }
-  $("#enlace-ok").disabled = true; pr.hidden = false; pr.firstElementChild.style.width = "30%";
+  $("#enlace-ok").disabled = true; pr.hidden = false; pr.firstElementChild.style.transform = "scaleX(.3)";
   try {
     const html = await traer(url);
-    pr.firstElementChild.style.width = "70%";
+    pr.firstElementChild.style.transform = "scaleX(.7)";
     const r = recetaDesdeHTML(html, url);
     if (!r || !r.ingredientes.length) throw new Error("sin-receta");
     if (r.fotoUrl) {
       try { const b = await traer(r.fotoUrl, "blob"); if (b.type.startsWith("image/")) r.fotoImportada = await comprimir(b, 1200); } catch { }
     }
-    pr.firstElementChild.style.width = "100%";
+    pr.firstElementChild.style.transform = "scaleX(1)";
     $("#h-enlace").close();
     abrirBorrador(r);
   } catch (e) {
@@ -1004,11 +1190,11 @@ $("#in-ocr").addEventListener("change", async e => {
   const file = e.target.files[0]; e.target.value = ""; if (!file) return;
   abrirTexto("Foto de una receta", "Leyendo el texto de la foto. La primera vez tarda algo más porque descarga el lector.");
   const f = $("#f-texto"), pr = f.querySelector(".progreso"), barra = pr.firstElementChild;
-  pr.hidden = false; barra.style.width = "5%";
+  pr.hidden = false; barra.style.transform = "scaleX(.05)";
   try {
     if (!window.Tesseract) await new Promise((ok, ko) => { const s = document.createElement("script"); s.src = "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"; s.onload = ok; s.onerror = ko; document.head.append(s); });
     const img = await comprimir(file, 2000, .9);
-    const { data } = await Tesseract.recognize(img, "spa", { logger: m => { if (m.status === "recognizing text") barra.style.width = Math.round(10 + m.progress * 90) + "%"; } });
+    const { data } = await Tesseract.recognize(img, "spa", { logger: m => { if (m.status === "recognizing text") barra.style.transform = `scaleX(${(.1 + m.progress * .9).toFixed(3)})`; } });
     f.elements.texto.value = data.text.replace(/\n{3,}/g, "\n\n").trim();
     $("#texto-ayuda").textContent = "Corrige lo que se haya leído mal y pulsa Continuar. Comprueba sobre todo las cantidades.";
     pr.hidden = true;
@@ -1019,14 +1205,15 @@ $("#in-ocr").addEventListener("change", async e => {
 
 /* =========================  a la lista de la compra  ========================= */
 let compraCtx = null;
-function abrirCompra(r) {
+async function abrirCompra(r) {
+  const items = await traerCol("items");
   const f = (escala.get(r.id) || r.raciones || 4) / (r.raciones || 4);
   const tach = marcados.get(r.id) || new Set();
   const lista = (r.ingredientes || []).map((l, i) => ({ l, i })).filter(x => !esSeccion(x.l)).map(({ l, i }) => {
     const nombre = nombreCompra(l), it = items.find(x => norm(x.name) === norm(nombre));
     return { i, nombre, qty: cantCompra(l, f), cat: it?.category || adivinarCategoria(nombre), ya: !!it?.onList, tachado: tach.has(i) };
   });
-  compraCtx = { r, lista };
+  compraCtx = { r, lista, items };
   $("#hc-ayuda").textContent = `Para ${r.titulo}, ${escala.get(r.id) || r.raciones || 4} raciones. Marca solo lo que falte en casa.`;
   $("#hc-lista").innerHTML = lista.map((g, k) => `<li class="${g.ya ? "ya" : ""}"><input type="checkbox" data-k="${k}" id="hc${k}"${g.ya ? " disabled" : ""}>
       <label class="n" for="hc${k}">${esc(g.nombre)} <small>${esc([g.qty, g.ya ? "ya está en la lista" : ""].filter(Boolean).join(", "))}</small></label>
@@ -1050,7 +1237,7 @@ $("#hc-si").addEventListener("click", () => {
   const sello = { addedBy: auth.currentUser?.uid || "", addedByName: nombreDe(me), addedAt: serverTimestamp() };
   let n = 0;
   for (const g of elegidos) {
-    const it = items.find(x => norm(x.name) === norm(g.nombre));
+    const it = compraCtx.items.find(x => norm(x.name) === norm(g.nombre));
     if (it?.onList) continue;
     n++;
     if (it) updateDoc(doc(db, "items", it.id), { onList: true, ...sello }).catch(fallo);
@@ -1060,18 +1247,20 @@ $("#hc-si").addEventListener("click", () => {
     }).catch(fallo);
   }
   $("#h-compra").close();
+  delete cacheCol.items;
   if (n) toast(`${n} ${n === 1 ? "producto añadido" : "productos añadidos"} a la lista de la compra`, APPS.compra ? () => { location.href = APPS.compra; } : null, "Ver lista");
 });
 
 /* =========================  al menú del calendario  ========================= */
-let menuCtx = { fecha: null, slot: "comida", r: null };
+let menuCtx = { fecha: null, slot: "comida", r: null, platos: [] };
 const DIAS = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
-function abrirMenu(r) {
+async function abrirMenu(r) {
+  const platos = await traerCol("platos");
   const hoy = new Date(); hoy.setHours(12, 0, 0, 0);
-  menuCtx = { r, fecha: ymd(hoy), slot: new Date().getHours() >= 16 ? "cena" : "comida" };
+  menuCtx = { r, platos, fecha: ymd(hoy), slot: new Date().getHours() >= 16 ? "cena" : "comida" };
   $("#hm-dias").innerHTML = Array.from({ length: 14 }, (_, i) => {
     const d = new Date(hoy); d.setDate(d.getDate() + i);
-    return `<button class="dia" data-fecha="${ymd(d)}" aria-pressed="${i === 0}">${i === 0 ? "hoy" : i === 1 ? "mañana" : DIAS[d.getDay()]}<b>${d.getDate()}</b></button>`;
+    return `<button class="dia" data-fecha="${ymd(d)}" aria-pressed="${i === 0}">${ICO.tic}${i === 0 ? "hoy" : i === 1 ? "mañana" : DIAS[d.getDay()]}<b>${d.getDate()}</b></button>`;
   }).join("");
   pintarSlot();
   $("#hm-info").textContent = platoDe(r) ? "" : "Se creará el plato en el calendario con los ingredientes de la receta.";
@@ -1084,17 +1273,19 @@ $("#hm-dias").addEventListener("click", e => {
   $("#hm-dias").querySelectorAll(".dia").forEach(x => x.setAttribute("aria-pressed", x === b));
 });
 $("#hm-slot").addEventListener("click", e => { const b = e.target.closest("[data-slot]"); if (b) { menuCtx.slot = b.dataset.slot; pintarSlot(); } });
-const platoDe = r => platos.find(p => p.recetaId === r.id) || platos.find(p => norm(p.nombre) === norm(r.titulo));
+const platoDe = r => menuCtx.platos.find(p => p.recetaId === r.id) || menuCtx.platos.find(p => norm(p.nombre) === norm(r.titulo));
 $("#hm-ok").addEventListener("click", async () => {
   const { r, fecha, slot } = menuCtx;
   $("#hm-ok").disabled = true;
   try {
     let p = platoDe(r), pid = p?.id;
+    const items = p ? [] : await traerCol("items");
     const ingredientes = (r.ingredientes || []).filter(l => !esSeccion(l)).map(l => { const n = nombreCompra(l); return { nombre: n, categoria: items.find(i => norm(i.name) === norm(n))?.category || adivinarCategoria(n) }; });
     if (!p) pid = (await addDoc(collection(db, "platos"), { nombre: r.titulo, ingredientes, notas: "", ultimoUso: fecha, recetaId: r.id })).id;
     else setDoc(doc(db, "platos", pid), { ultimoUso: fecha, recetaId: r.id }, { merge: true }).catch(() => { });
     await setDoc(doc(db, "menu", fecha), { [slot]: arrayUnion({ id: pid, nombre: p?.nombre || r.titulo }) }, { merge: true });
     $("#h-menu").close();
+    delete cacheCol.platos;
     const d = new Date(fecha + "T12:00");
     toast(`Puesto en el menú: ${slot} del ${DIAS[d.getDay()]} ${d.getDate()}`, APPS.calendario ? () => { location.href = APPS.calendario; } : null, "Ver menú");
   } catch (e) { fallo(e); }
@@ -1121,7 +1312,7 @@ function salirCocina(desdeRuta) {
 }
 function pintarPaso() {
   const { pasos, i, r } = coc, p = pasos[i];
-  $("#coc-barra").style.width = ((i + 1) / pasos.length * 100) + "%";
+  $("#coc-barra").style.transform = `scaleX(${((i + 1) / pasos.length).toFixed(3)})`;
   // Ingredientes que se mencionan en este paso, con la cantidad según las raciones elegidas
   const f = (escala.get(r.id) || r.raciones || 4) / (r.raciones || 4), np = norm(p);
   const usados = (r.ingredientes || []).filter(l => !esSeccion(l)).filter(l => {
@@ -1149,17 +1340,20 @@ $("#coc-paso").addEventListener("click", e => { const c = e.target.closest("[dat
 let x0 = null;
 $("#coc-paso").addEventListener("touchstart", e => { x0 = e.touches[0].clientX; }, { passive: true });
 $("#coc-paso").addEventListener("touchend", e => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; x0 = null; if (Math.abs(dx) > 60) moverPaso(dx < 0 ? 1 : -1); });
-document.addEventListener("keydown", e => { if (!coc || document.querySelector("dialog[open]")) return; if (e.key === "ArrowRight" || e.key === " ") moverPaso(1); if (e.key === "ArrowLeft") moverPaso(-1); if (e.key === "Escape") salirCocina(); });
+document.addEventListener("keydown", e => {
+  if (!coc || document.querySelector("dialog[open]") || !$("#coc-panel").hidden) return; if (e.key === "ArrowRight" || e.key === " ") moverPaso(1); if (e.key === "ArrowLeft") moverPaso(-1); if (e.key === "Escape") salirCocina(); });
 $("#coc-ings").addEventListener("click", () => {
   const pn = $("#coc-panel");
   if (!pn.hidden) { pn.hidden = true; return; }
   const r = coc.r, rac = escala.get(r.id) || r.raciones || 4, f = rac / (r.raciones || 4);
-  pn.innerHTML = `<div style="display:flex;align-items:center"><h2 style="font:700 22px var(--titulo);margin:0;flex:1">Ingredientes, ${rac} ${rac === 1 ? "ración" : "raciones"}</h2>
+  pn.innerHTML = `<div style="display:flex;align-items:center;gap:.5rem"><h2 style="font:700 1.375rem/1.3 var(--titulo);margin:0;flex:1">Ingredientes, ${rac} ${rac === 1 ? "ración" : "raciones"}</h2>
     <button class="icono" data-cerrar-panel aria-label="Cerrar">${ICO.x}</button></div>
     <ul class="ings">${(r.ingredientes || []).map(l => esSeccion(l) ? `<li class="seccion">${esc(textoSeccion(l))}</li>` : (e => `<li><label><span>${e.cant ? `<span class="cant">${esc(e.cant)}</span> ` : ""}${esc(e.resto)}</span></label></li>`)(escalarIng(l, f))).join("")}</ul>`;
   pn.hidden = false;
 });
-$("#coc-panel").addEventListener("click", e => { if (e.target.closest("[data-cerrar-panel]")) $("#coc-panel").hidden = true; });
+$("#coc-panel").addEventListener("click", e => { if (e.target.closest("[data-cerrar-panel]")) cerrarPanelCocina(); });
+function cerrarPanelCocina() { $("#coc-panel").hidden = true; $("#coc-ings").focus(); }
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#coc-panel").hidden) { e.stopPropagation(); cerrarPanelCocina(); } }, true);
 
 /* ---------- temporizadores ---------- */
 let cronos = [], audio = null, tic = null;
@@ -1223,7 +1417,7 @@ $("#btn-cuenta").addEventListener("click", () => {
 });
 $("#hcu-salir").addEventListener("click", () => { $("#h-cuenta").close(); signOut(auth); });
 $("#hcu-exportar").addEventListener("click", () => {
-  const datos = recetas.map(({ miniatura, creadoEn, editadoEn, ultimaVez, ...r }) => r);
+  const datos = recetas.map(({ miniatura, creadoEn, editadoEn, ultimaVez, ...r }) => r);  // sin fotos ni fechas internas
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([JSON.stringify(datos, null, 2)], { type: "application/json" }));
   a.download = `recetas-${ymd(new Date())}.json`; a.click();

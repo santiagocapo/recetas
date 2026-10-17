@@ -4,7 +4,7 @@ service cloud.firestore {
     // Solo estas dos cuentas pueden leer y escribir. Correos en minúsculas.
     function esDeCasa() {
       return request.auth != null &&
-        request.auth.token.email.lower() in ['santiagocapo@gmail.com', 'olimpiamadridtaverner@gmail.com'];
+        request.auth.token.email.lower() in ['tu-correo@gmail.com', 'correo-de-olimpia@gmail.com'];
     }
 
     // --- Lista de la compra ---
@@ -30,9 +30,18 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    // --- Recetas ---
+    // --- Recetas: solo el texto, para que abrir la app no descargue ninguna foto ---
     match /recetas/{id} { allow read, write: if esDeCasa(); }
-    // Foto grande de cada receta, aparte para no descargarlas todas al abrir la app.
+
+    // Foto pequeña de cada receta, la que se ve en las tarjetas de la biblioteca.
+    // Está aparte para poder pedir solo las que se asoman por la pantalla.
+    match /miniaturas/{id} {
+      allow read, delete: if esDeCasa();
+      allow create, update: if esDeCasa() && request.resource.data.data is string
+        && request.resource.data.data.size() < 300000;
+    }
+
+    // Foto grande, solo se descarga al abrir la receta.
     // Límite de tamaño por si acaso (Firestore admite hasta 1 MB por documento).
     match /fotos/{id} {
       allow read, delete: if esDeCasa();
