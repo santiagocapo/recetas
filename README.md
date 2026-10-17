@@ -11,6 +11,7 @@ Recetario compartido para dos, en la línea de Crouton, pero como app web. Funci
 - **Temporizadores**: los tiempos de los pasos («10 minutos», «media hora») se pueden tocar para lanzar un temporizador. Admite varios a la vez, con pausa, pitido y vibración.
 - **A la compra**: propone los ingredientes con la cantidad según las raciones, y solo se añaden los que se marquen. La sección se toma del producto si ya existe en la lista, o se adivina.
 - **Al menú**: pone la receta en la comida o la cena de un día del calendario. Si no existe el plato, lo crea con sus ingredientes.
+- **Planificación a la vista**: bajo el título de la receta aparecen los días en que está puesta en el menú («hoy, comida»), con una aspa para quitarla de un día concreto, y la tarjeta de la biblioteca lleva una chapa con el primer día. El filtro «En el menú» deja a la vista solo lo planificado.
 - **Compartir** una receta como texto (WhatsApp, Notas…) y **exportar** todas en JSON como copia de seguridad.
 
 ## Coste
@@ -30,6 +31,7 @@ Las fotos se guardan en Firestore y no en Firebase Storage porque Storage ahora 
 | Archivo | Para qué sirve |
 |---|---|
 | `index.html` | La app completa. |
+| `importar.html` | Página aparte para traer las recetas exportadas de Crouton. Se usa una vez y se puede dejar ahí. |
 | `config.js` | El mismo de las otras dos apps (no está en este paquete). |
 | `sw.js` | Permite abrir la app sin conexión. |
 | `manifest.webmanifest` e iconos | Instalación en la pantalla de inicio. En Android, además, la app aparece en «Compartir». |
@@ -47,6 +49,20 @@ Las fotos se guardan en Firestore y no en Firebase Storage porque Storage ahora 
 > Las recetas guardadas antes de octubre de 2026 llevaban la miniatura dentro del propio documento. La app las pasa a `miniaturas` sola, en segundo plano y sin avisar, la primera vez que se abre.
 
 **Colecciones de las otras apps**: añade productos a `items` con el mismo formato que la lista de la compra, crea platos en `platos` (con el campo extra `recetaId`, que el calendario ignora) y escribe en `menu`.
+
+Para saber qué días está planificada cada receta, la app escucha `menu` solo de hoy en adelante (documentos diminutos, uno por día) y pide de `platos` únicamente los que aparecen en esos días. Un plato creado desde el calendario, sin `recetaId`, se empareja con su receta por el nombre y, si coinciden, se le escribe el `recetaId` una sola vez. Así cualquier plato del menú acaba sabiendo de qué receta viene, que es lo que necesita el calendario para poder abrirla.
+
+## Traer las recetas de Crouton
+
+En Crouton, «Export all recipes» deja un `.zip` con un archivo `.crumb` por receta: en realidad son fichas de texto con las fotos dentro, en el mismo archivo. `importar.html` las abre en el propio navegador (sin subir el `.zip` a ningún sitio), las traduce y las guarda en Firebase.
+
+Qué se conserva: nombre, raciones, tiempo de preparación y de cocción, ingredientes con sus cantidades, pasos y apartados, etiquetas, notas, información nutricional (se añade a las notas) y el enlace de origen con el nombre del sitio.
+
+Qué no viaja: las carpetas (Crouton no las guarda en el `.zip`, solo sus identificadores), el color de cada etiqueta, los temporizadores que Crouton deja marcados dentro de un paso (esta app los detecta sola al leer el texto) y la escala por defecto distinta de 1.
+
+Las cantidades se traducen a la forma que esta app sabe releer, que es lo que hace funcionar el escalado por raciones: `GRAMS` pasa a «g», `MILLS` a «ml», `ITEM` a un número suelto, `TABLESPOON` a «cucharadas» y así con el resto. Los decimales se escriben como fracción cuando queda mejor (0,5 pasa a ½). Si el nombre del ingrediente ya traía la unidad escrita («1 kilo de contramuslos»), no se duplica.
+
+Cada receta guarda el identificador que tenía en Crouton (`croutonId`), así que se puede volver a importar el mismo `.zip` las veces que haga falta: las que ya están se saltan solas.
 
 ## Criterios de diseño aplicados
 
