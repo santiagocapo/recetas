@@ -396,11 +396,11 @@ label.campo{display:flex;flex-direction:column;gap:var(--e05);font-size:.875rem;
 <div id="toast" hidden role="status"><span></span><button hidden></button></div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
 import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult,
-  signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, onSnapshot,
-  addDoc, setDoc, updateDoc, deleteDoc, getDoc, getDocs, deleteField, serverTimestamp, arrayUnion, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  addDoc, setDoc, updateDoc, deleteDoc, getDoc, getDocs, deleteField, serverTimestamp, arrayUnion, increment } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
 /* NUCLEO-INICIO: funciones puras (sin Firebase ni DOM), probadas aparte */
 const norm = s => String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
